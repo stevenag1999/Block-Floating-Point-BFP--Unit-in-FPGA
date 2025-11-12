@@ -131,7 +131,7 @@ XCL_EMULATION_MODE=hw_emu ./build/bfp_host ../HW/build/bfp_kernel.xclbin
 ## Project Structure
 
 ```
-bfp_alveo/
+bfp_fpga/
 ├── Makefile              # Main build orchestration
 ├── GUIDE.md             # This file
 │
