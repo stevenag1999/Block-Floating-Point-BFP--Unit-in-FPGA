@@ -274,36 +274,55 @@ void bfp_kernel(
     unsigned int* out_sign,
     unsigned int* out_mant
 ) {
-    // Interface pragmas
+    // Interface pragmas - Control bundle
     #pragma HLS INTERFACE s_axilite port=operation bundle=control
     #pragma HLS INTERFACE s_axilite port=n_blocks bundle=control
     #pragma HLS INTERFACE s_axilite port=return bundle=control
 
-    // Memory interfaces with optimizations
+    // Memory interfaces with optimizations - also need s_axilite for control
     #pragma HLS INTERFACE m_axi port=in_fp32_a offset=slave bundle=gmem0 \
         max_read_burst_length=16 num_read_outstanding=4 latency=64
+    #pragma HLS INTERFACE s_axilite port=in_fp32_a bundle=control
+    
     #pragma HLS INTERFACE m_axi port=in_exp_a offset=slave bundle=gmem1 \
         max_read_burst_length=16 num_read_outstanding=4 latency=64
+    #pragma HLS INTERFACE s_axilite port=in_exp_a bundle=control
+    
     #pragma HLS INTERFACE m_axi port=in_sign_a offset=slave bundle=gmem2 \
         max_read_burst_length=16 num_read_outstanding=4 latency=64
+    #pragma HLS INTERFACE s_axilite port=in_sign_a bundle=control
+    
     #pragma HLS INTERFACE m_axi port=in_mant_a offset=slave bundle=gmem3 \
         max_read_burst_length=16 num_read_outstanding=4 latency=64
+    #pragma HLS INTERFACE s_axilite port=in_mant_a bundle=control
 
     #pragma HLS INTERFACE m_axi port=in_exp_b offset=slave bundle=gmem1 \
         max_read_burst_length=16 num_read_outstanding=4 latency=64
+    #pragma HLS INTERFACE s_axilite port=in_exp_b bundle=control
+    
     #pragma HLS INTERFACE m_axi port=in_sign_b offset=slave bundle=gmem2 \
         max_read_burst_length=16 num_read_outstanding=4 latency=64
+    #pragma HLS INTERFACE s_axilite port=in_sign_b bundle=control
+    
     #pragma HLS INTERFACE m_axi port=in_mant_b offset=slave bundle=gmem3 \
         max_read_burst_length=16 num_read_outstanding=4 latency=64
+    #pragma HLS INTERFACE s_axilite port=in_mant_b bundle=control
 
     #pragma HLS INTERFACE m_axi port=out_fp32 offset=slave bundle=gmem0 \
         max_write_burst_length=16 num_write_outstanding=4 latency=64
+    #pragma HLS INTERFACE s_axilite port=out_fp32 bundle=control
+    
     #pragma HLS INTERFACE m_axi port=out_exp offset=slave bundle=gmem1 \
         max_write_burst_length=16 num_write_outstanding=4 latency=64
+    #pragma HLS INTERFACE s_axilite port=out_exp bundle=control
+    
     #pragma HLS INTERFACE m_axi port=out_sign offset=slave bundle=gmem2 \
         max_write_burst_length=16 num_write_outstanding=4 latency=64
+    #pragma HLS INTERFACE s_axilite port=out_sign bundle=control
+    
     #pragma HLS INTERFACE m_axi port=out_mant offset=slave bundle=gmem3 \
         max_write_burst_length=16 num_write_outstanding=4 latency=64
+    #pragma HLS INTERFACE s_axilite port=out_mant bundle=control
 
     // Main processing loop with DATAFLOW
     process_blocks: for (unsigned int blk_idx = 0; blk_idx < n_blocks; blk_idx++) {
