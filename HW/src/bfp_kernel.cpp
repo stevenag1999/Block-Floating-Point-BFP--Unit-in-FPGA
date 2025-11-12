@@ -82,7 +82,9 @@ void bfp_kernel(
         
         const unsigned int offset = blk_idx * N;
         
-        blk_t A{}, B{}, Z{};
+        blk_t A{};
+        blk_t B{};
+        blk_t Z{};
         std::array<float, N> fp_in{}, fp_out{};
         
         //=====================================================================
@@ -95,23 +97,25 @@ void bfp_kernel(
                 fp_in[i] = in_fp32_a[offset + i];
             }
         } else {
-            // Load BFP input A
-            A.exp_shared = in_exp_a[blk_idx];
-            for (int i = 0; i < N; i++) {
-#pragma HLS PIPELINE II=1
-                A.sign[i] = in_sign_a[offset + i];
-                A.mant[i] = in_mant_a[offset + i];
-            }
-            
-            // Load BFP input B for binary operations
-            if (operation >= OP_ADD && operation <= OP_DIV) {
-                B.exp_shared = in_exp_b[blk_idx];
+            // --- Carga A si NO es RCP ---
+            if (operation != OP_RCP) {
+                A.exp_shared = in_exp_a[blk_idx];
                 for (int i = 0; i < N; i++) {
-#pragma HLS PIPELINE II=1
-                    B.sign[i] = in_sign_b[offset + i];
-                    B.mant[i] = in_mant_b[offset + i];
+                #pragma HLS PIPELINE II=1
+                    A.sign[i] = in_sign_a[offset + i];
+                    A.mant[i] = in_mant_a[offset + i];
                 }
             }
+
+            // --- Carga B si es binaria (ADD..DIV) o RCP ---
+            if ((operation >= OP_ADD && operation <= OP_DIV) || operation == OP_RCP) {
+                B.exp_shared = in_exp_b[blk_idx];
+                for (int i = 0; i < N; i++) {
+                #pragma HLS PIPELINE II=1
+                    B.sign[i] = in_sign_b[offset + i];
+                    B.mant[i] = in_mant_b[offset + i];
+                        }
+                    }
         }
         
         //=====================================================================
