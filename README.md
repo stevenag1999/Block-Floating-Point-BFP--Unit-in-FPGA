@@ -1,4 +1,4 @@
-# BFP on FPPGA
+# BFP on FPGA
 
 Block Floating Point (BFP) arithmetic operations accelerated using FPGA.
 
