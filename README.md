@@ -1,4 +1,4 @@
-# BFP on FPGA
+# Block Floating-Point(BFP) Unit in FPGA for Hardware Accelerationusing HLS
 
 Block Floating Point (BFP) arithmetic operations accelerated using FPGA.
 
