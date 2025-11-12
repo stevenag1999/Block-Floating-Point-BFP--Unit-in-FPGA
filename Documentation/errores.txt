@@ -1,29 +1,8 @@
-INFO: [v++ 60-585] Compiling for hardware target
-INFO: [v++ 60-423]   Target device: xilinx_u55c_gen3x16_xdma_3_202210_1
-INFO: [v++ 60-242] Creating kernel: 'bfp_kernel'
 INFO: [v++ 60-1616] Creating a HLS clock using kernel_frequency option: 250 MHz
 
 ===>The following messages were generated while  performing high-level synthesis for kernel: bfp_kernel Log file: /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/bfp_kernel/bfp_kernel/vitis_hls.log :
-ERROR: [v++ 207-3776] use of undeclared identifier 'A' (/pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/bfp_kernel.cpp:99:13)
-ERROR: [v++ 207-3776] use of undeclared identifier 'A' (/pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/bfp_kernel.cpp:102:2)
-ERROR: [v++ 207-3776] use of undeclared identifier 'A' (/pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/bfp_kernel.cpp:103:17)
-ERROR: [v++ 207-3776] use of undeclared identifier 'B' (/pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/bfp_kernel.cpp:108:17)
-ERROR: [v++ 207-3776] use of undeclared identifier 'B' (/pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/bfp_kernel.cpp:111:2)
-ERROR: [v++ 207-3776] use of undeclared identifier 'B' (/pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/bfp_kernel.cpp:112:21)
-ERROR: [v++ 207-3776] use of undeclared identifier 'Z' (/pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/bfp_kernel.cpp:122:17)
-ERROR: [v++ 207-3776] use of undeclared identifier 'A' (/pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/bfp_kernel.cpp:126:48)
-ERROR: [v++ 207-3776] use of undeclared identifier 'Z' (/pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/bfp_kernel.cpp:127:17)
-ERROR: [v++ 207-3776] use of undeclared identifier 'A' (/pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/bfp_kernel.cpp:127:21)
-ERROR: [v++ 207-3776] use of undeclared identifier 'Z' (/pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/bfp_kernel.cpp:131:17)
-ERROR: [v++ 207-3776] use of undeclared identifier 'A' (/pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/bfp_kernel.cpp:131:41)
-ERROR: [v++ 207-3776] use of undeclared identifier 'B' (/pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/bfp_kernel.cpp:131:44)
-ERROR: [v++ 207-3776] use of undeclared identifier 'Z' (/pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/bfp_kernel.cpp:135:17)
-ERROR: [v++ 207-3776] use of undeclared identifier 'A' (/pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/bfp_kernel.cpp:135:41)
-ERROR: [v++ 207-3776] use of undeclared identifier 'B' (/pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/bfp_kernel.cpp:135:44)
-ERROR: [v++ 207-3776] use of undeclared identifier 'Z' (/pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/bfp_kernel.cpp:139:17)
-ERROR: [v++ 207-3776] use of undeclared identifier 'A' (/pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/bfp_kernel.cpp:139:41)
-ERROR: [v++ 207-3776] use of undeclared identifier 'B' (/pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/bfp_kernel.cpp:139:44)
-ERROR: [v++ 207-59] too many errors emitted, stopping now
+ERROR: [v++ 214-219] Vitis kernel mode requires that all s_axilite ports must be bundled into one bundle. The following ports ('operation,n_blocks,return' and 'in_fp32_a,in_exp_a,in_sign_a,in_mant_a,in_exp_b,in_sign_b,in_mant_b,out_fp32,out_exp,out_sign,out_mant', in function 'bfp_kernel') have different bundle names: 'control' and 'control_r'. Consider removing the bundle names on these ports. (/pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/bfp_kernel.cpp:56:0)
+ERROR: [v++ 200-1715] Encountered problem during source synthesis
 ERROR: [v++ 60-300] Failed to build kernel(ip) bfp_kernel, see log for details: /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/bfp_kernel/bfp_kernel/vitis_hls.log
 ERROR: [v++ 60-599] Kernel compilation failed to complete
 ERROR: [v++ 60-592] Failed to finish compilation
