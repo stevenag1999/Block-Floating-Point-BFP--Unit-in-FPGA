@@ -79,8 +79,8 @@ See **[GUIDE.md](GUIDE.md)** for:
 
 ## License
 
-Nombre del Proyecto
-Copyright (c) 2025 Steven Arias Gutierrez
+- Block Floating Point
+- Copyright (c) 2025 Steven Arias Gutierrez
 
 [Texto completo de la licencia elegida]
 
