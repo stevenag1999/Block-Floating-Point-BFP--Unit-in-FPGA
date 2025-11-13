@@ -33,7 +33,7 @@ VPP_LDFLAGS :=
 VPP_FLAGS += --save-temps --jobs 32
 
 # Set the desired clock frequency (e.g., 200 MHz)
-KERNEL_FREQ := 250
+KERNEL_FREQ := 200
 
 # This is an example of how to pass params
 # TODO: Modify according to yours
