@@ -1,43 +1,20 @@
-INFO: [VPL 60-839] Read in kernel information from file '/pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/link/int/kernel_info.dat'.
-INFO: [VPL 74-78] Compiler Version string: 2024.2
-INFO: [VPL 60-423]   Target device: xilinx_u55c_gen3x16_xdma_3_202210_1
-INFO: [VPL 60-1032] Extracting hardware platform to /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/link/vivado/vpl/.local/hw_platform
-[00:55:13] Run vpl: Step create_project: Started
-Creating Vivado project.
-[00:55:20] Run vpl: Step create_project: Completed
-[00:55:20] Run vpl: Step create_bd: Started
-[00:55:52] Run vpl: Step create_bd: Completed
-[00:55:52] Run vpl: Step update_bd: Started
-[00:55:53] Run vpl: Step update_bd: Completed
-[00:55:53] Run vpl: Step generate_target: Started
-[00:57:11] Run vpl: Step generate_target: RUNNING...
-[00:57:16] Run vpl: Step generate_target: Completed
-[00:57:16] Run vpl: Step config_hw_runs: Started
-[00:57:31] Run vpl: Step config_hw_runs: Completed
-[00:57:31] Run vpl: Step synth: Started
-[00:58:06] Block-level synthesis in progress, 0 of 60 jobs complete, 5 jobs running.
-[00:58:38] Block-level synthesis in progress, 0 of 60 jobs complete, 5 jobs running.
-[00:59:09] Block-level synthesis in progress, 0 of 60 jobs complete, 5 jobs running.
-[00:59:40] Block-level synthesis in progress, 4 of 60 jobs complete, 1 job running.
-[01:00:12] Block-level synthesis in progress, 4 of 60 jobs complete, 2 jobs running.
-[01:00:43] Block-level synthesis in progress, 4 of 60 jobs complete, 2 jobs running.
-[01:01:14] Block-level synthesis in progress, 5 of 60 jobs complete, 1 job running.
-[01:01:45] Block-level synthesis in progress, 5 of 60 jobs complete, 1 job running.
-[01:02:16] Block-level synthesis in progress, 5 of 60 jobs complete, 1 job running.
-[01:02:47] Block-level synthesis in progress, 5 of 60 jobs complete, 1 job running.
-[01:03:19] Block-level synthesis in progress, 5 of 60 jobs complete, 1 job running.
-[01:03:50] Block-level synthesis in progress, 5 of 60 jobs complete, 1 job running.
-[01:04:21] Block-level synthesis in progress, 6 of 60 jobs complete, 0 jobs running.
-[01:04:52] Block-level synthesis in progress, 6 of 60 jobs complete, 1 job running.
-[01:05:23] Block-level synthesis in progress, 6 of 60 jobs complete, 1 job running.
-[01:05:54] Block-level synthesis in progress, 7 of 60 jobs complete, 0 jobs running.
-[01:06:01] Run vpl: Step synth: Completed
-[01:06:01] Run vpl: Step impl: Started
+========================================
+BFP Accelerator Test Suite
+========================================
 
+Starting tests with 2 blocks...
 
-lleonvega@alveo-u55c-03:~/ecaslab/steven.arias/bfp_fpga/HW$ ls
-Makefile   bfp_kernel.cpp  bfp_proj_fast  run_hls.tcl	tcl		    v++_bfp_kernel_3663295.backup.log	 v++_kernels.log
-_x	   bfp_kernel.xo   build.hw	  src		tmp.hw		    v++_kernels.link.log		 xcd.log
-bfp_hls.h  bfp_ops_hls.h   package.hw	  tb_kernel.cc	v++_bfp_kernel.log  v++_kernels.link_3843960.backup.log
+----------------------------------------
+Test 1: ENCODE Operation
+----------------------------------------
+BFP Accelerator Test
+Operation: ENCODE (0)
+Number of blocks: 2
+Block size (N): 16
+Open the device 0
+Load the xclbin ../HW/package.hw/kernels.xclbin
+Allocate Buffers in Global Memory
+./run_tests.sh: line 44: 161180 Killed                  $EXECUTABLE 0 $N_BLOCKS
+
 
 
