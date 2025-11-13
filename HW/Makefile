@@ -1,126 +1,88 @@
-# HW/Makefile - Build BFP kernel for Alveo U55C
-# ECASLab configuration for xcu55c-fsvh2892-2L-e
-
-#==============================================================================
-# ALVEO U55C CONFIGURATION
-#==============================================================================
-PLATFORM := xilinx_u55c_gen3x16_xdma_3_202210_1
-DEVICE := xcu55c-fsvh2892-2L-e
+# Setting relevant variables
+ROOT_DIR=$(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 TARGET := hw
 
-# Use hw_emu for quick testing, hw for bitstream
-# TARGET := hw_emu
+# TODO: Modify according to the Alveo card. This is shown in the
+#       Flashable partitions running on FPGA (when logging in)
+PLATFORM ?= xilinx_u55c_gen3x16_xdma_3_202210_1
 
-#==============================================================================
-# PATHS
-#==============================================================================
-SRC_DIR := src
-BUILD_DIR := build
-TCL_DIR := tcl
+# Setting input file
+# TODO: Modify the HLS_FILES with the CPP files you want to include
+#       The HLS_FILES_NAMES are the kernel names. In this case, try to match them
+#       with the file name
+HLS_FILES := bfp_kernel.cpp
+HLS_FILES_NAMES := bfp_kernel
 
-KERNEL_NAME := bfp_kernel
-KERNEL_SRC := $(SRC_DIR)/$(KERNEL_NAME).cpp
-KERNEL_XO := $(BUILD_DIR)/$(KERNEL_NAME).xo
-XCLBIN := $(BUILD_DIR)/$(KERNEL_NAME).xclbin
+# Setting directories
+TEMP_DIR := ./tmp.$(TARGET)
+BUILD_DIR := ./build.$(TARGET)
+PACKAGE_OUT = ./package.$(TARGET)
+LINK_OUTPUT := $(BUILD_DIR)/kernels.link.xclbin
+EMCONFIG_DIR = $(TEMP_DIR)
+HLS_BUILD = $(TEMP_DIR)/%.xo
 
-#==============================================================================
-# VITIS COMPILER
-#==============================================================================
-VPP := v++
+# Packaging
+XCL_BIN := $(PACKAGE_OUT)/kernels.xclbin
 
-# Compiler flags
-VPP_COMMON_FLAGS := \
-	-t $(TARGET) \
-	--platform $(PLATFORM) \
-	--save-temps \
-	--temp_dir $(BUILD_DIR)/_x \
-	--log_dir $(BUILD_DIR)/logs
+# Output files
+HLS_KERNEL_FILES := $(addprefix $(TEMP_DIR)/,$(HLS_FILES:.cpp=.xo))
 
-# Compilation flags (C++ to XO)
-VPP_COMPILE_FLAGS := $(VPP_COMMON_FLAGS) \
-	-c \
-	-I$(SRC_DIR) \
-	-g \
-	--optimize 3
+# Setting V++ Flags
+VPP_PFLAGS :=
+VPP_LDFLAGS :=
+VPP_FLAGS += --save-temps --jobs 32
 
-# Link flags (XO to XCLBIN)
-VPP_LINK_FLAGS := $(VPP_COMMON_FLAGS) \
-	-l \
-	--optimize 3 \
-	--connectivity.nk $(KERNEL_NAME):1 \
-	--kernel_frequency 250
+# Set the desired clock frequency (e.g., 200 MHz)
+KERNEL_FREQ := 250
 
-#==============================================================================
-# TARGETS
-#==============================================================================
-.PHONY: all kernel xclbin clean help
+# This is an example of how to pass params
+# TODO: Modify according to yours
+USE_FLOAT32 := 1
+ifdef USE_FLOAT32
+	VPP_FLAGS += -DUSE_FLOAT32
+endif
 
-all: xclbin
+RMDIR = rm -rf
 
-help:
-	@echo "Makefile for BFP Kernel on Alveo U55C"
-	@echo ""
-	@echo "Targets:"
-	@echo "  all      - Build complete xclbin (default)"
-	@echo "  kernel   - Compile kernel to .xo"
-	@echo "  xclbin   - Link .xo to .xclbin"
-	@echo "  clean    - Remove build artifacts"
-	@echo ""
-	@echo "Configuration:"
-	@echo "  Platform: $(PLATFORM)"
-	@echo "  Device:   $(DEVICE)"
-	@echo "  Target:   $(TARGET)"
-	@echo ""
-	@echo "Usage:"
-	@echo "  make            # Build hardware (slow, ~2-4 hours)"
-	@echo "  make TARGET=hw_emu  # Build emulation (fast, ~10 min)"
+.PHONY: all clean cleanall hls-build
 
-#==============================================================================
-# COMPILE: C++ -> XO
-#==============================================================================
-kernel: $(KERNEL_XO)
+all: build
 
-$(KERNEL_XO): $(KERNEL_SRC) $(SRC_DIR)/bfp_hls.h $(SRC_DIR)/bfp_ops_hls.h
-	@echo ""
-	@echo "===================================================================="
-	@echo "Compiling BFP kernel to .xo"
-	@echo "===================================================================="
-	@mkdir -p $(BUILD_DIR)/logs
-	$(VPP) $(VPP_COMPILE_FLAGS) -k $(KERNEL_NAME) -o $@ $(KERNEL_SRC)
-	@echo "[OK] Kernel compiled: $@"
+.PHONY: build
+build: check_platform emconfig $(LINK_OUTPUT) $(XCL_BIN)
 
-#==============================================================================
-# LINK: XO -> XCLBIN
-#==============================================================================
-xclbin: $(XCLBIN)
+# Rules for creating the HW
+check_platform:
+ifndef PLATFORM
+	$(error PLATFORM not set. Please set the PLATFORM properly and rerun. Run "make help" for more details.)
+endif
 
-$(XCLBIN): $(KERNEL_XO)
-	@echo ""
-	@echo "===================================================================="
-	@echo "Linking to XCLBIN (this may take 2-4 hours for hw target)"
-	@echo "===================================================================="
-	$(VPP) $(VPP_LINK_FLAGS) -o $@ $(KERNEL_XO)
-	@echo ""
-	@echo "===================================================================="
-	@echo "[SUCCESS] XCLBIN ready: $@"
-	@echo "===================================================================="
+$(TEMP_DIR)/%.xo: %.cpp
+	mkdir -p $(TEMP_DIR)
+	v++ -c $(VPP_FLAGS) -t $(TARGET) --platform $(PLATFORM) -k $(<:.cpp=) --temp_dir $(TEMP_DIR) --kernel_frequency $(KERNEL_FREQ) -I'$(<D)' -o '$@' '$<'
 
-#==============================================================================
-# CLEAN
-#==============================================================================
+$(LINK_OUTPUT): $(HLS_KERNEL_FILES)
+	mkdir -p $(BUILD_DIR)
+	v++ -l $(VPP_FLAGS) $(VPP_LDFLAGS) -t $(TARGET) --platform $(PLATFORM) --temp_dir $(TEMP_DIR) --kernel_frequency $(KERNEL_FREQ) -o'$(LINK_OUTPUT)' $^
+
+hls-build: check_platform emconfig $(HLS_KERNEL_FILES)
+
+emconfig:$(EMCONFIG_DIR)/emconfig.json
+$(EMCONFIG_DIR)/emconfig.json:
+	emconfigutil --platform $(PLATFORM) --od $(EMCONFIG_DIR)
+
+$(XCL_BIN): $(LINK_OUTPUT)
+	mkdir -p $(PACKAGE_OUT)
+	v++ -p $(LINK_OUTPUT) $(VPP_FLAGS) -t $(TARGET) --platform $(PLATFORM) --package.out_dir $(PACKAGE_OUT) --kernel_frequency $(KERNEL_FREQ) -o $(XCL_BIN)
+
+# Cleaning rules
 clean:
-	rm -rf $(BUILD_DIR)
-	@echo "[OK] Build directory cleaned"
+	$(RMDIR) $(EXECUTABLE) *.xclbin/{*sw_emu*,*hw_emu*}
+	$(RMDIR) profile_* TempConfig system_estimate.xtxt *.rpt *.csv
+	$(RMDIR) src/*.ll *v++* .Xil emconfig.json dltmp* xmltmp* *.log *.jou *.wcfg *.wdb
 
-#==============================================================================
-# INFO
-#==============================================================================
-info:
-	@echo "Build Configuration:"
-	@echo "  Platform:    $(PLATFORM)"
-	@echo "  Device:      $(DEVICE)"
-	@echo "  Target:      $(TARGET)"
-	@echo "  Kernel:      $(KERNEL_NAME)"
-	@echo "  Source:      $(KERNEL_SRC)"
-	@echo "  Output XO:   $(KERNEL_XO)"
-	@echo "  Output XCLBIN: $(XCLBIN)"
+cleanall: clean
+	$(RMDIR) build_dir* sd_card*
+	$(RMDIR) package.* tmp.* build.*
+	$(RMDIR) _x* *xclbin.run_summary qemu-memory-_* emulation _vimage pl* start_simulation.sh *.xclbin
+
