@@ -17,4 +17,17 @@ Allocate Buffers in Global Memory
 ./run_tests.sh: line 44: 161180 Killed                  $EXECUTABLE 0 $N_BLOCKS
 
 
+BFP Accelerator Test
+Operation: ENCODE (0)
+Number of blocks: 2
+Block size (N): 16
+Open the device 0
+Load the xclbin ../HW/package.hw/kernels.xclbin
+Allocate Buffers in Global Memory
+terminate called after throwing an instance of 'xrt_core::system_error'
+  what():  failed to allocate userptr bo: Operation not permitted
+Aborted
+
+
+
 
