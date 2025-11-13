@@ -1,29 +1,36 @@
+INFO: [VPL 60-839] Read in kernel information from file '/pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/link/int/kernel_info.dat'.
+INFO: [VPL 74-78] Compiler Version string: 2024.2
+INFO: [VPL 60-423]   Target device: xilinx_u55c_gen3x16_xdma_3_202210_1
+INFO: [VPL 60-1032] Extracting hardware platform to /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/link/vivado/vpl/.local/hw_platform
+[00:55:13] Run vpl: Step create_project: Started
+Creating Vivado project.
+[00:55:20] Run vpl: Step create_project: Completed
+[00:55:20] Run vpl: Step create_bd: Started
+[00:55:52] Run vpl: Step create_bd: Completed
+[00:55:52] Run vpl: Step update_bd: Started
+[00:55:53] Run vpl: Step update_bd: Completed
+[00:55:53] Run vpl: Step generate_target: Started
+[00:57:11] Run vpl: Step generate_target: RUNNING...
+[00:57:16] Run vpl: Step generate_target: Completed
+[00:57:16] Run vpl: Step config_hw_runs: Started
+[00:57:31] Run vpl: Step config_hw_runs: Completed
+[00:57:31] Run vpl: Step synth: Started
+[00:58:06] Block-level synthesis in progress, 0 of 60 jobs complete, 5 jobs running.
+[00:58:38] Block-level synthesis in progress, 0 of 60 jobs complete, 5 jobs running.
+[00:59:09] Block-level synthesis in progress, 0 of 60 jobs complete, 5 jobs running.
+[00:59:40] Block-level synthesis in progress, 4 of 60 jobs complete, 1 job running.
+[01:00:12] Block-level synthesis in progress, 4 of 60 jobs complete, 2 jobs running.
+[01:00:43] Block-level synthesis in progress, 4 of 60 jobs complete, 2 jobs running.
+[01:01:14] Block-level synthesis in progress, 5 of 60 jobs complete, 1 job running.
+[01:01:45] Block-level synthesis in progress, 5 of 60 jobs complete, 1 job running.
+[01:02:16] Block-level synthesis in progress, 5 of 60 jobs complete, 1 job running.
+[01:02:47] Block-level synthesis in progress, 5 of 60 jobs complete, 1 job running.
+[01:03:19] Block-level synthesis in progress, 5 of 60 jobs complete, 1 job running.
+[01:03:50] Block-level synthesis in progress, 5 of 60 jobs complete, 1 job running.
+[01:04:21] Block-level synthesis in progress, 6 of 60 jobs complete, 0 jobs running.
+[01:04:52] Block-level synthesis in progress, 6 of 60 jobs complete, 1 job running.
+[01:05:23] Block-level synthesis in progress, 6 of 60 jobs complete, 1 job running.
+[01:05:54] Block-level synthesis in progress, 7 of 60 jobs complete, 0 jobs running.
+[01:06:01] Run vpl: Step synth: Completed
+[01:06:01] Run vpl: Step impl: Started
 
-****** v++ v2024.2 (64-bit)
-  **** SW Build 5239630 on 2024-11-10-11:19:46
-  **** Start of session at: Thu Nov 13 00:44:35 2025
-    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
-    ** Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
-
-INFO: [v++ 60-1306] Additional information associated with this v++ compile can be found at:
-	Reports: /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/reports/bfp_kernel
-	Log files: /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/logs/bfp_kernel
-INFO: [v++ 60-1548] Creating build summary session with primary output /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/bfp_kernel.xo.compile_summary, at Thu Nov 13 00:44:38 2025
-INFO: [v++ 60-1315] Creating rulecheck session with output '/pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/reports/bfp_kernel/v++_compile_bfp_kernel_guidance.html', at Thu Nov 13 00:44:38 2025
-INFO: [v++ 60-895]   Target platform: /opt/xilinx/platforms/xilinx_u55c_gen3x16_xdma_3_202210_1/xilinx_u55c_gen3x16_xdma_3_202210_1.xpfm
-INFO: [v++ 60-1578]   This platform contains Xilinx Shell Archive '/opt/xilinx/platforms/xilinx_u55c_gen3x16_xdma_3_202210_1/hw/hw.xsa'
-INFO: [v++ 74-78] Compiler Version string: 2024.2
-INFO: [v++ 60-1302] Platform 'xilinx_u55c_gen3x16_xdma_3_202210_1.xpfm' has been explicitly enabled for this release.
-INFO: [v++ 60-585] Compiling for hardware target
-INFO: [v++ 60-423]   Target device: xilinx_u55c_gen3x16_xdma_3_202210_1
-INFO: [v++ 60-242] Creating kernel: 'bfp_kernel'
-INFO: [v++ 60-1616] Creating a HLS clock using kernel_frequency option: 250 MHz
-
-===>The following messages were generated while  performing high-level synthesis for kernel: bfp_kernel Log file: /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/bfp_kernel/bfp_kernel/vitis_hls.log :
-ERROR: [v++ 214-219] Vitis kernel mode requires that all s_axilite ports must be bundled into one bundle. The following ports ('operation,n_blocks,return' and 'in_fp32_a,in_exp_a,in_sign_a,in_mant_a,in_exp_b,in_sign_b,in_mant_b,out_fp32,out_exp,out_sign,out_mant', in function 'bfp_kernel') have different bundle names: 'control' and 'control_r'. Consider removing the bundle names on these ports. (/pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/bfp_kernel.cpp:277:0)
-ERROR: [v++ 200-1715] Encountered problem during source synthesis
-ERROR: [v++ 60-300] Failed to build kernel(ip) bfp_kernel, see log for details: /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/bfp_kernel/bfp_kernel/vitis_hls.log
-ERROR: [v++ 60-599] Kernel compilation failed to complete
-ERROR: [v++ 60-592] Failed to finish compilation
-INFO: [v++ 60-1653] Closing dispatch client.
-make: *** [Makefile:62: tmp.hw/bfp_kernel.xo] Error 1
