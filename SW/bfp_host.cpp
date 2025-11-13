@@ -27,7 +27,6 @@ static void print_usage(const char* exe) {
     std::cerr << "    6 = RCP\n";
 }
 
-// Simple helper to clamp op id into range and get name
 static const char* op_name(unsigned op) {
     if (op > 6)
         return "UNKNOWN";
@@ -42,7 +41,6 @@ int main(int argc, char* argv[])
             return 1;
         }
 
-        // Parse arguments
         unsigned op_id   = static_cast<unsigned>(std::stoul(argv[1]));
         unsigned nBlocks = static_cast<unsigned>(std::stoul(argv[2]));
         if (nBlocks == 0) {
@@ -115,58 +113,91 @@ int main(int argc, char* argv[])
             unsigned base = blk * BlockSize;
             for (unsigned i = 0; i < BlockSize; ++i) {
                 h_in_fp32_a[base + i] = srcA[i];
-                (void)srcB; // B se usaría si luego haces flujo ENCODE+OP
+                (void)srcB; // B se usará cuando encadenes ENCODE+OP
             }
         }
 
         // --------------------------------------------------------------------
-        // Allocate device buffers (device-only to avoid userptr issues)
+        // Allocate device buffers (device-only to evitar userptr)
         // --------------------------------------------------------------------
         std::cout << "Allocate Buffers in Global Memory\n";
 
         auto flags = xrt::bo::flags::device_only;
 
-        // Input A buffers (FP32 o BFP, según operación)
-        auto bo_in_fp32_a = xrt::bo(device, h_in_fp32_a.size() * sizeof(float),
-                                    flags, bfp_kernel.group_id(0)); // gmem0
-        auto bo_in_exp_a  = xrt::bo(device, h_in_exp_a.size() * sizeof(unsigned int),
-                                    flags, bfp_kernel.group_id(1)); // gmem1
-        auto bo_in_sign_a = xrt::bo(device, h_in_sign_a.size() * sizeof(unsigned int),
-                                    flags, bfp_kernel.group_id(2)); // gmem2
-        auto bo_in_mant_a = xrt::bo(device, h_in_mant_a.size() * sizeof(unsigned int),
-                                    flags, bfp_kernel.group_id(3)); // gmem3
+        auto bo_in_fp32_a = xrt::bo(device,
+                                    h_in_fp32_a.size() * sizeof(float),
+                                    flags,
+                                    bfp_kernel.group_id(0)); // gmem0
+        auto bo_in_exp_a  = xrt::bo(device,
+                                    h_in_exp_a.size() * sizeof(unsigned int),
+                                    flags,
+                                    bfp_kernel.group_id(1)); // gmem1
+        auto bo_in_sign_a = xrt::bo(device,
+                                    h_in_sign_a.size() * sizeof(unsigned int),
+                                    flags,
+                                    bfp_kernel.group_id(2)); // gmem2
+        auto bo_in_mant_a = xrt::bo(device,
+                                    h_in_mant_a.size() * sizeof(unsigned int),
+                                    flags,
+                                    bfp_kernel.group_id(3)); // gmem3
 
-        // Input B buffers (BFP para operaciones binarias, de momento ceros)
-        auto bo_in_exp_b  = xrt::bo(device, h_in_exp_b.size() * sizeof(unsigned int),
-                                    flags, bfp_kernel.group_id(1)); // gmem1
-        auto bo_in_sign_b = xrt::bo(device, h_in_sign_b.size() * sizeof(unsigned int),
-                                    flags, bfp_kernel.group_id(2)); // gmem2
-        auto bo_in_mant_b = xrt::bo(device, h_in_mant_b.size() * sizeof(unsigned int),
-                                    flags, bfp_kernel.group_id(3)); // gmem3
+        auto bo_in_exp_b  = xrt::bo(device,
+                                    h_in_exp_b.size() * sizeof(unsigned int),
+                                    flags,
+                                    bfp_kernel.group_id(1)); // gmem1
+        auto bo_in_sign_b = xrt::bo(device,
+                                    h_in_sign_b.size() * sizeof(unsigned int),
+                                    flags,
+                                    bfp_kernel.group_id(2)); // gmem2
+        auto bo_in_mant_b = xrt::bo(device,
+                                    h_in_mant_b.size() * sizeof(unsigned int),
+                                    flags,
+                                    bfp_kernel.group_id(3)); // gmem3
 
-        // Output buffers
-        auto bo_out_fp32  = xrt::bo(device, h_out_fp32.size() * sizeof(float),
-                                    flags, bfp_kernel.group_id(0)); // gmem0
-        auto bo_out_exp   = xrt::bo(device, h_out_exp.size() * sizeof(unsigned int),
-                                    flags, bfp_kernel.group_id(1)); // gmem1
-        auto bo_out_sign  = xrt::bo(device, h_out_sign.size() * sizeof(unsigned int),
-                                    flags, bfp_kernel.group_id(2)); // gmem2
-        auto bo_out_mant  = xrt::bo(device, h_out_mant.size() * sizeof(unsigned int),
-                                    flags, bfp_kernel.group_id(3)); // gmem3
+        auto bo_out_fp32  = xrt::bo(device,
+                                    h_out_fp32.size() * sizeof(float),
+                                    flags,
+                                    bfp_kernel.group_id(0)); // gmem0
+        auto bo_out_exp   = xrt::bo(device,
+                                    h_out_exp.size() * sizeof(unsigned int),
+                                    flags,
+                                    bfp_kernel.group_id(1)); // gmem1
+        auto bo_out_sign  = xrt::bo(device,
+                                    h_out_sign.size() * sizeof(unsigned int),
+                                    flags,
+                                    bfp_kernel.group_id(2)); // gmem2
+        auto bo_out_mant  = xrt::bo(device,
+                                    h_out_mant.size() * sizeof(unsigned int),
+                                    flags,
+                                    bfp_kernel.group_id(3)); // gmem3
 
         // --------------------------------------------------------------------
-        // Transfer input data to device
+        // Transfer input data to device (usa write(ptr, size, 0))
         // --------------------------------------------------------------------
         std::cout << "Write input buffers to device\n";
 
-        bo_in_fp32_a.write(h_in_fp32_a.data(), h_in_fp32_a.size() * sizeof(float));
-        bo_in_exp_a.write (h_in_exp_a.data(),  h_in_exp_a.size()  * sizeof(unsigned int));
-        bo_in_sign_a.write(h_in_sign_a.data(), h_in_sign_a.size() * sizeof(unsigned int));
-        bo_in_mant_a.write(h_in_mant_a.data(), h_in_mant_a.size() * sizeof(unsigned int));
+        bo_in_fp32_a.write(h_in_fp32_a.data(),
+                           h_in_fp32_a.size() * sizeof(float),
+                           0);
+        bo_in_exp_a.write (h_in_exp_a.data(),
+                           h_in_exp_a.size()  * sizeof(unsigned int),
+                           0);
+        bo_in_sign_a.write(h_in_sign_a.data(),
+                           h_in_sign_a.size() * sizeof(unsigned int),
+                           0);
+        bo_in_mant_a.write(h_in_mant_a.data(),
+                           h_in_mant_a.size() * sizeof(unsigned int),
+                           0);
 
-        bo_in_exp_b.write (h_in_exp_b.data(),  h_in_exp_b.size()  * sizeof(unsigned int));
-        bo_in_sign_b.write(h_in_sign_b.data(), h_in_sign_b.size() * sizeof(unsigned int));
-        bo_in_mant_b.write(h_in_mant_b.data(), h_in_mant_b.size() * sizeof(unsigned int));
+        bo_in_exp_b.write (h_in_exp_b.data(),
+                           h_in_exp_b.size()  * sizeof(unsigned int),
+                           0);
+        bo_in_sign_b.write(h_in_sign_b.data(),
+                           h_in_sign_b.size() * sizeof(unsigned int),
+                           0);
+        bo_in_mant_b.write(h_in_mant_b.data(),
+                           h_in_mant_b.size() * sizeof(unsigned int),
+                           0);
 
         // --------------------------------------------------------------------
         // Launch kernel
@@ -192,21 +223,29 @@ int main(int argc, char* argv[])
         run.wait();
 
         // --------------------------------------------------------------------
-        // Read back results
+        // Read back results (usa read(ptr, size, 0))
         // --------------------------------------------------------------------
         std::cout << "Read back results\n";
 
-        bo_out_fp32.read(h_out_fp32.data(), h_out_fp32.size() * sizeof(float));
-        bo_out_exp.read (h_out_exp.data(),  h_out_exp.size()  * sizeof(unsigned int));
-        bo_out_sign.read(h_out_sign.data(), h_out_sign.size() * sizeof(unsigned int));
-        bo_out_mant.read(h_out_mant.data(), h_out_mant.size() * sizeof(unsigned int));
+        bo_out_fp32.read(h_out_fp32.data(),
+                         h_out_fp32.size() * sizeof(float),
+                         0);
+        bo_out_exp.read (h_out_exp.data(),
+                         h_out_exp.size()  * sizeof(unsigned int),
+                         0);
+        bo_out_sign.read(h_out_sign.data(),
+                         h_out_sign.size() * sizeof(unsigned int),
+                         0);
+        bo_out_mant.read(h_out_mant.data(),
+                         h_out_mant.size() * sizeof(unsigned int),
+                         0);
 
         // --------------------------------------------------------------------
-        // Print a small summary for sanity check
+        // Print a small summary
         // --------------------------------------------------------------------
         std::cout << "\n=== RESULT SUMMARY (first block) ===\n";
 
-        if (op_id == 0) { // ENCODE: BFP sale en out_exp/out_sign/out_mant
+        if (op_id == 0) { // ENCODE: BFP en out_exp/out_sign/out_mant
             std::cout << "Encoded BFP (block 0):\n";
             std::cout << "  exp_shared = " << h_out_exp[0] << "\n";
             std::cout << "  sign[0..7] =";
@@ -217,15 +256,15 @@ int main(int argc, char* argv[])
                 std::cout << " " << h_out_mant[i];
             std::cout << "\n";
         }
-        else if (op_id == 1) { // DECODE: FP32 sale en out_fp32
+        else if (op_id == 1) { // DECODE: FP32 en out_fp32
             std::cout << "Decoded FP32 (block 0):\n";
             for (unsigned i = 0; i < std::min(8u, BlockSize); ++i)
                 std::cout << "  [" << i << "] = " << h_out_fp32[i] << "\n";
         }
         else {
             std::cout << "Operation " << op_name(op_id) << " executed.\n";
-            std::cout << "  (Full numeric validation for binary ops\n"
-                      << "   is not implemented in this host yet.)\n";
+            std::cout << "  (Validación numérica completa para ops binarias\n"
+                      << "   aún no está implementada en este host.)\n";
         }
 
         std::cout << "\nTEST COMPLETED OK\n";
