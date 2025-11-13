@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include "bfp_hls.h"
+//#include "bfp_hls_opt.h"
 
 //*============================================================================
 //* HELPER: CLAMP EXPONENTE A RANGO VALIDO
