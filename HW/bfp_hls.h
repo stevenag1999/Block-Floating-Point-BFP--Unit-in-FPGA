@@ -53,23 +53,49 @@ struct BFP_Global {
     uint32_t exp_shared;                        // Exponente compartido E 
     std::array<uint32_t, Block_size> sign;      // Signos por elemento
     std::array<uint32_t, Block_size> mant;      // Mantissas (sin 1 implícito)
+    std::array<uint32_t, Block_size> delta;    // NUEVO DELTA
 
     // RECONSTRUIR VALORES A FP32 PARA VALIDACION 
     float rebuid_FP32(std::size_t i) const {
 #pragma HLS INLINE
         if (i >= Block_size) return 0.0f;
-        if (exp_shared == 0 && mant[i] == 0) return 0.0f;
+
+        const uint32_t mant_max = (1u << (Cfg::wm + 1)) - 1;
+    
+        // Detectar NaN
+        if (mant[i] == (mant_max - 1) && delta[i] == 0) {
+            // Construir NaN en FP32
+            union {float f; uint32_t u;} nan_val;
+            nan_val.u = 0x7FC00000;  // NaN canónico
+            return nan_val.f;
+        }
         
-        int   exp_unbiased = int(exp_shared) - Cfg::bias_bfp;
-        float mant_val     = float(mant[i]) / float(1u << Cfg::wm);
-        float value        = std::ldexp(mant_val, exp_unbiased);     
+        // Detectar Infinito
+        if (mant[i] == mant_max && delta[i] == 0) {
+            // Construir Inf en FP32
+            union {float f; uint32_t u;} inf_val;
+            inf_val.u = sign[i] ? 0xFF800000 : 0x7F800000;  // -Inf : +Inf
+            return inf_val.f;
+        }
+        // Detectar cero
+        if (exp_shared == 0 && mant[i] == 0) return 0.0f;
+
+        // Etapa de reconstruccion
+        int   exp_shared_unbiased = int(exp_shared) - Cfg::bias_bfp;
+        int   exp_real = exp_shared_unbiased - int(delta[i]); //  RECONSTRUCCION CON DELTA
+
+        uint32_t mant_unshifted = mant[i] << delta[i];
+
+        float mant_val     = float(mant_unshifted) / float(1u << Cfg::wm);
+        float value        = std::ldexp(mant_val, exp_real); 
+        //float value = std::ldexp(mant_val, exp_shared_unbiased);    
         return sign[i] ? -value : value;
     }
 };
 
 //*============================================================================
 //* CODIFICACION DE BLOQUE: FP32 ARRAY -> BFP_Global
-//* Calcula Emax y usa RNE para cuantización
+//* Calcula Emax y usa RNE para cuantización y DELTA
 //*============================================================================
 template<class Cfg, std::size_t Block_size>
 BFP_Global<Cfg, Block_size> encode_block(const std::array<float, Block_size>& xs) {
@@ -109,6 +135,7 @@ FIND_EMAX:
         out.exp_shared = 0;
         out.sign.fill(0);
         out.mant.fill(0);
+        out.delta.fill(0);
         return out;
     }   
     
@@ -125,6 +152,7 @@ FIND_EMAX:
 
     //*========================================================================
     //* FASE 3: CUANTIZAR CADA ELEMENTO CON EXPONENTE MAX (SHIFT & RNE)
+    //* CALCULO DE DELTAS
     //*========================================================================
     const uint32_t mant_max = (1u << (Cfg::wm + 1)) - 1;
 
@@ -138,6 +166,7 @@ QUANTIZE_ELEMENTS:
         if (num_fp32 == 0.0f) {
             out.sign[i] = 0;
             out.mant[i] = 0;
+            out.delta[i] = 0; //DELTA
             continue;
         }
         
@@ -146,16 +175,43 @@ QUANTIZE_ELEMENTS:
         
         uint32_t s = (u.u >> 31) & 0x1;
         int exp_fp32 = int((u.u >> 23) & 0xFF);
+        uint32_t mant_fp32 = u.u & 0x7FFFFF;  // Mantisa de FP32
+
+        // Deteccion de Nan/inf 
+        if (exp_fp32 == 0xFF) {
+            out.sign[i] = s;
+            // Distinguir entre Inf y NaN
+            if (mant_fp32 == 0) {
+                // Es INFINITO: exp_max, mant_max, delta=0
+                out.mant[i] = mant_max;
+                out.delta[i] = 0;
+            } else {
+                // Es NaN: exp_max, mant_max-1 (para diferenciar), delta=0
+                out.mant[i] = mant_max - 1;
+                out.delta[i] = 0;
+            }
+        
+            // Actualizar Emax para que el exponente compartido sea máximo
+            if (Emax < ((1 << Cfg::we) - 1 - Cfg::bias_bfp)) {
+                Emax = (1 << Cfg::we) - 1 - Cfg::bias_bfp;
+            }
+            continue;
+        }
         
         if (exp_fp32 == 0) {
             out.sign[i] = 0;
             out.mant[i] = 0;
+            out.delta[i] = 0; //DELTA PARA DESNORMALIZAR
             continue;
         }
         
         //* CONSTRUIR MANTISSA DE 24 BITS CON 1 IMPLICITO
         uint32_t mant24 = (u.u & 0x7FFFFF) | (1u << 23);
         int exp_unbiased = exp_fp32 - 127;
+
+        //* CALCULO PARA GUARDAR DELTA 
+        int delta_val = Emax - exp_unbiased;
+        out.delta[i] = uint32_t(delta_val);     //GUARDAR DELTA
         
         //* REDUCCION DE MANTISSA A WM BITS & ALINEAR CON EXPONENTE COMPARTIDO
         int shift_total = (23 - Cfg::wm) + (Emax - exp_unbiased);
