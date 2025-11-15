@@ -13,7 +13,7 @@
 // Profiler
 #include "timer.hpp"
 
-// BFP common definitions
+// BFP common definitions (UPDATED with compact format + delta)
 #include "common_bfp.h"
 
 // Helper to compute metrics (MAE and MAPE)
@@ -32,85 +32,6 @@ void compute_metrics(const float* ref, const float* got, unsigned int len,
     }
     mae = abs_sum / double(len);
     mape = (mape_cnt ? (ape_sum / double(mape_cnt)) * 100.0 : 0.0);
-}
-
-// Simple CPU-side BFP encoding for test data preparation
-struct SimpleBFP {
-    unsigned int exp_shared;
-    std::vector<unsigned int> sign;
-    std::vector<unsigned int> mant;
-    
-    SimpleBFP(unsigned int n) : exp_shared(0), sign(n, 0), mant(n, 0) {}
-};
-
-SimpleBFP encode_fp32_to_bfp(const float* data, unsigned int n) {
-    SimpleBFP result(n);
-    
-    // Find max exponent
-    int max_exp = -1000;
-    for (unsigned int i = 0; i < n; i++) {
-        if (data[i] == 0.0f) continue;
-        
-        union {float f; uint32_t u;} u = {data[i]};
-        int exp = int((u.u >> 23) & 0xFF);
-        if (exp > 0) {
-            int exp_unbiased = exp - 127;
-            if (exp_unbiased > max_exp) max_exp = exp_unbiased;
-        }
-    }
-    
-    if (max_exp == -1000) {
-        return result; // All zeros
-    }
-    
-    // Calculate shared exponent with bias
-    int exp_shared_bfp = max_exp + ((1 << (WE - 1)) - 1); // bias = 15 for WE=5
-    if (exp_shared_bfp < 0) exp_shared_bfp = 0;
-    if (exp_shared_bfp > 31) exp_shared_bfp = 31;
-    result.exp_shared = exp_shared_bfp;
-    
-    // Quantize each element
-    for (unsigned int i = 0; i < n; i++) {
-        if (data[i] == 0.0f) {
-            result.sign[i] = 0;
-            result.mant[i] = 0;
-            continue;
-        }
-        
-        union {float f; uint32_t u;} u = {data[i]};
-        result.sign[i] = (u.u >> 31) & 0x1;
-        
-        int exp = int((u.u >> 23) & 0xFF);
-        if (exp == 0) continue;
-        
-        uint32_t mant24 = (u.u & 0x7FFFFF) | (1u << 23);
-        int exp_unbiased = exp - 127;
-        
-        int shift = (23 - WM) + (max_exp - exp_unbiased);
-        
-        uint32_t mant_reduced;
-        if (shift >= 32) {
-            mant_reduced = 0;
-        } else if (shift < 0) {
-            mant_reduced = mant24 << (-shift);
-        } else {
-            // Round to nearest even
-            uint32_t q = mant24 >> shift;
-            uint32_t rem = mant24 & ((1u << shift) - 1);
-            uint32_t half = 1u << (shift - 1);
-            if (rem > half || (rem == half && (q & 1))) {
-                q++;
-            }
-            mant_reduced = q;
-        }
-        
-        uint32_t max_mant = (1u << (WM + 1)) - 1;
-        if (mant_reduced > max_mant) mant_reduced = max_mant;
-        
-        result.mant[i] = mant_reduced;
-    }
-    
-    return result;
 }
 
 int main(int argc, char** argv) {
@@ -135,15 +56,18 @@ int main(int argc, char** argv) {
     }
 
     std::cout << "========================================" << std::endl;
-    std::cout << "BFP Accelerator Test" << std::endl;
+    std::cout << "BFP Accelerator Test (COMPACT FORMAT)" << std::endl;
     std::cout << "========================================" << std::endl;
     std::cout << "Operation: " << OP_NAMES[operation] << " (" << operation << ")" << std::endl;
     std::cout << "Number of blocks: " << n_blocks << std::endl;
     std::cout << "Block size (N): " << N << std::endl;
+    std::cout << "BFP Config: WE=" << WE << ", WM=" << WM << std::endl;
+    std::cout << "BFP_BLOCK_SIZE: " << BFP_BLOCK_SIZE << " uints per block" << std::endl;
     std::cout << std::endl;
 
     // Compute sizes
-    unsigned int size = n_blocks * N;
+    unsigned int size_fp32 = n_blocks * N;  // Total FP32 elements
+    unsigned int size_bfp = n_blocks * BFP_BLOCK_SIZE;  // Total BFP uints
 
     GET_PROFILE_INSTANCE(setup_time, bfp_profiler);
     setup_time->reset();
@@ -161,50 +85,37 @@ int main(int argc, char** argv) {
 
     std::cout << "Allocating buffers in global memory..." << std::endl;
     
-    // CRITICAL: group_id(X) refers to kernel argument index, not bundle number
-    // Kernel arguments:
-    //   0: operation (scalar)
-    //   1: n_blocks (scalar)
-    //   2: in_fp32_a   -> bundle gmem0
-    //   3: in_exp_a    -> bundle gmem1
-    //   4: in_sign_a   -> bundle gmem2
-    //   5: in_mant_a   -> bundle gmem3
-    //   6: in_exp_b    -> bundle gmem1
-    //   7: in_sign_b   -> bundle gmem2
-    //   8: in_mant_b   -> bundle gmem3
-    //   9: out_fp32    -> bundle gmem0
-    //   10: out_exp    -> bundle gmem1
-    //   11: out_sign   -> bundle gmem2
-    //   12: out_mant   -> bundle gmem3
+    // KERNEL SIGNATURE (7 arguments):
+    // Arguments are indexed in declaration order (following softmax pattern)
+    //   0: operation (scalar - s_axilite auto-grouped)
+    //   1: n_blocks (scalar - s_axilite auto-grouped)
+    //   2: in_fp32     -> m_axi bundle gmem0
+    //   3: in_bfp_a    -> m_axi bundle gmem1 (COMPACT: size = n_blocks * BFP_BLOCK_SIZE)
+    //   4: in_bfp_b    -> m_axi bundle gmem1 (COMPACT: size = n_blocks * BFP_BLOCK_SIZE)
+    //   5: out_fp32    -> m_axi bundle gmem0
+    //   6: out_bfp     -> m_axi bundle gmem2 (COMPACT: size = n_blocks * BFP_BLOCK_SIZE)
     
-    auto bo_in_fp32_a = xrt::bo(device, size * sizeof(float), bfp_kernel.group_id(2));
-    auto bo_in_exp_a  = xrt::bo(device, n_blocks * sizeof(unsigned int), bfp_kernel.group_id(3));
-    auto bo_in_sign_a = xrt::bo(device, size * sizeof(unsigned int), bfp_kernel.group_id(4));
-    auto bo_in_mant_a = xrt::bo(device, size * sizeof(unsigned int), bfp_kernel.group_id(5));
+    auto bo_in_fp32  = xrt::bo(device, size_fp32 * sizeof(float), 
+                               bfp_kernel.group_id(2));
     
-    auto bo_in_exp_b  = xrt::bo(device, n_blocks * sizeof(unsigned int), bfp_kernel.group_id(6));
-    auto bo_in_sign_b = xrt::bo(device, size * sizeof(unsigned int), bfp_kernel.group_id(7));
-    auto bo_in_mant_b = xrt::bo(device, size * sizeof(unsigned int), bfp_kernel.group_id(8));
+    auto bo_in_bfp_a = xrt::bo(device, size_bfp * sizeof(uint32_t), 
+                               bfp_kernel.group_id(3));
     
-    auto bo_out_fp32 = xrt::bo(device, size * sizeof(float), bfp_kernel.group_id(9));
-    auto bo_out_exp  = xrt::bo(device, n_blocks * sizeof(unsigned int), bfp_kernel.group_id(10));
-    auto bo_out_sign = xrt::bo(device, size * sizeof(unsigned int), bfp_kernel.group_id(11));
-    auto bo_out_mant = xrt::bo(device, size * sizeof(unsigned int), bfp_kernel.group_id(12));
+    auto bo_in_bfp_b = xrt::bo(device, size_bfp * sizeof(uint32_t), 
+                               bfp_kernel.group_id(4));
+    
+    auto bo_out_fp32 = xrt::bo(device, size_fp32 * sizeof(float), 
+                               bfp_kernel.group_id(5));
+    
+    auto bo_out_bfp  = xrt::bo(device, size_bfp * sizeof(uint32_t), 
+                               bfp_kernel.group_id(6));
 
     // Map buffers
-    auto bo_in_fp32_a_map = bo_in_fp32_a.map<float*>();
-    auto bo_in_exp_a_map  = bo_in_exp_a.map<unsigned int*>();
-    auto bo_in_sign_a_map = bo_in_sign_a.map<unsigned int*>();
-    auto bo_in_mant_a_map = bo_in_mant_a.map<unsigned int*>();
-    
-    auto bo_in_exp_b_map  = bo_in_exp_b.map<unsigned int*>();
-    auto bo_in_sign_b_map = bo_in_sign_b.map<unsigned int*>();
-    auto bo_in_mant_b_map = bo_in_mant_b.map<unsigned int*>();
-    
+    auto bo_in_fp32_map  = bo_in_fp32.map<float*>();
+    auto bo_in_bfp_a_map = bo_in_bfp_a.map<uint32_t*>();
+    auto bo_in_bfp_b_map = bo_in_bfp_b.map<uint32_t*>();
     auto bo_out_fp32_map = bo_out_fp32.map<float*>();
-    auto bo_out_exp_map  = bo_out_exp.map<unsigned int*>();
-    auto bo_out_sign_map = bo_out_sign.map<unsigned int*>();
-    auto bo_out_mant_map = bo_out_mant.map<unsigned int*>();
+    auto bo_out_bfp_map  = bo_out_bfp.map<uint32_t*>();
 
     // Test data - Two different block patterns
     std::cout << "Preparing test data..." << std::endl;
@@ -226,18 +137,16 @@ int main(int argc, char** argv) {
          7.0f,  6.0f,  5.0f,  4.0f,  3.0f,  2.0f, 1.0f, 0.5f
     };
 
-    // Initialize all buffers
-    std::fill(bo_in_fp32_a_map, bo_in_fp32_a_map + size, 0.0f);
-    std::fill(bo_in_exp_a_map, bo_in_exp_a_map + n_blocks, 0u);
-    std::fill(bo_in_sign_a_map, bo_in_sign_a_map + size, 0u);
-    std::fill(bo_in_mant_a_map, bo_in_mant_a_map + size, 0u);
-    std::fill(bo_in_exp_b_map, bo_in_exp_b_map + n_blocks, 0u);
-    std::fill(bo_in_sign_b_map, bo_in_sign_b_map + size, 0u);
-    std::fill(bo_in_mant_b_map, bo_in_mant_b_map + size, 0u);
+    // Initialize all buffers to zero
+    std::fill(bo_in_fp32_map, bo_in_fp32_map + size_fp32, 0.0f);
+    std::fill(bo_in_bfp_a_map, bo_in_bfp_a_map + size_bfp, 0u);
+    std::fill(bo_in_bfp_b_map, bo_in_bfp_b_map + size_bfp, 0u);
+    std::fill(bo_out_fp32_map, bo_out_fp32_map + size_fp32, 0.0f);
+    std::fill(bo_out_bfp_map, bo_out_bfp_map + size_bfp, 0u);
 
     // Prepare test data based on operation
-    std::vector<float> A_fp(size), B_fp(size);
-    std::vector<float> golden_ref(size);
+    std::vector<float> A_fp(size_fp32), B_fp(size_fp32);
+    std::vector<float> golden_ref(size_fp32);
     
     // Fill data for all blocks
     for (unsigned int blk = 0; blk < n_blocks; ++blk) {
@@ -252,7 +161,7 @@ int main(int argc, char** argv) {
     }
 
     // Compute golden reference
-    for (unsigned int i = 0; i < size; ++i) {
+    for (unsigned int i = 0; i < size_fp32; ++i) {
         switch (operation) {
             case OP_ENCODE:
             case OP_DECODE:
@@ -268,10 +177,24 @@ int main(int argc, char** argv) {
                 golden_ref[i] = A_fp[i] * B_fp[i];
                 break;
             case OP_DIV:
-                golden_ref[i] = (std::fabs(B_fp[i]) > 1e-30f) ? (A_fp[i] / B_fp[i]) : 0.f;
+                if (std::fabs(B_fp[i]) > 1e-30f) {
+                    golden_ref[i] = A_fp[i] / B_fp[i];
+                } else {
+                    // Division by zero -> Inf
+                    union {float f; uint32_t u;} inf_val;
+                    inf_val.u = (A_fp[i] < 0) ? 0xFF800000 : 0x7F800000;
+                    golden_ref[i] = inf_val.f;
+                }
                 break;
             case OP_RCP:
-                golden_ref[i] = (std::fabs(B_fp[i]) > 1e-30f) ? (1.0f / B_fp[i]) : 0.f;
+                if (std::fabs(B_fp[i]) > 1e-30f) {
+                    golden_ref[i] = 1.0f / B_fp[i];
+                } else {
+                    // Reciprocal of zero -> Inf
+                    union {float f; uint32_t u;} inf_val;
+                    inf_val.u = (B_fp[i] < 0) ? 0xFF800000 : 0x7F800000;
+                    golden_ref[i] = inf_val.f;
+                }
                 break;
         }
     }
@@ -279,51 +202,39 @@ int main(int argc, char** argv) {
     // Fill input buffers based on operation
     if (operation == OP_ENCODE) {
         // ENCODE: input is FP32
-        std::memcpy(bo_in_fp32_a_map, A_fp.data(), sizeof(float) * size);
+        std::memcpy(bo_in_fp32_map, A_fp.data(), sizeof(float) * size_fp32);
         
     } else if (operation == OP_DECODE) {
-        // DECODE: input is BFP - encode A on CPU
+        // DECODE: input is BFP - encode A on CPU and pack
         for (unsigned int blk = 0; blk < n_blocks; ++blk) {
-            unsigned int offset = blk * N;
-            SimpleBFP bfp_a = encode_fp32_to_bfp(&A_fp[offset], N);
+            unsigned int fp_offset = blk * N;
+            unsigned int bfp_offset = blk * BFP_BLOCK_SIZE;
             
-            bo_in_exp_a_map[blk] = bfp_a.exp_shared;
-            for (int i = 0; i < N; ++i) {
-                bo_in_sign_a_map[offset + i] = bfp_a.sign[i];
-                bo_in_mant_a_map[offset + i] = bfp_a.mant[i];
-            }
+            SimpleBFP bfp_a = encode_fp32_to_bfp_cpu(&A_fp[fp_offset], N);
+            pack_bfp_block_cpu(bfp_a, bo_in_bfp_a_map, bfp_offset);
         }
         
     } else if (operation == OP_RCP) {
         // RCP: input is BFP B only
         for (unsigned int blk = 0; blk < n_blocks; ++blk) {
-            unsigned int offset = blk * N;
-            SimpleBFP bfp_b = encode_fp32_to_bfp(&B_fp[offset], N);
+            unsigned int fp_offset = blk * N;
+            unsigned int bfp_offset = blk * BFP_BLOCK_SIZE;
             
-            bo_in_exp_b_map[blk] = bfp_b.exp_shared;
-            for (int i = 0; i < N; ++i) {
-                bo_in_sign_b_map[offset + i] = bfp_b.sign[i];
-                bo_in_mant_b_map[offset + i] = bfp_b.mant[i];
-            }
+            SimpleBFP bfp_b = encode_fp32_to_bfp_cpu(&B_fp[fp_offset], N);
+            pack_bfp_block_cpu(bfp_b, bo_in_bfp_b_map, bfp_offset);
         }
         
     } else {
-        // Binary ops: encode both A and B
+        // Binary ops: encode both A and B on CPU and pack
         for (unsigned int blk = 0; blk < n_blocks; ++blk) {
-            unsigned int offset = blk * N;
+            unsigned int fp_offset = blk * N;
+            unsigned int bfp_offset = blk * BFP_BLOCK_SIZE;
             
-            SimpleBFP bfp_a = encode_fp32_to_bfp(&A_fp[offset], N);
-            SimpleBFP bfp_b = encode_fp32_to_bfp(&B_fp[offset], N);
+            SimpleBFP bfp_a = encode_fp32_to_bfp_cpu(&A_fp[fp_offset], N);
+            SimpleBFP bfp_b = encode_fp32_to_bfp_cpu(&B_fp[fp_offset], N);
             
-            bo_in_exp_a_map[blk] = bfp_a.exp_shared;
-            bo_in_exp_b_map[blk] = bfp_b.exp_shared;
-            
-            for (int i = 0; i < N; ++i) {
-                bo_in_sign_a_map[offset + i] = bfp_a.sign[i];
-                bo_in_mant_a_map[offset + i] = bfp_a.mant[i];
-                bo_in_sign_b_map[offset + i] = bfp_b.sign[i];
-                bo_in_mant_b_map[offset + i] = bfp_b.mant[i];
-            }
+            pack_bfp_block_cpu(bfp_a, bo_in_bfp_a_map, bfp_offset);
+            pack_bfp_block_cpu(bfp_b, bo_in_bfp_b_map, bfp_offset);
         }
     }
 
@@ -331,29 +242,21 @@ int main(int argc, char** argv) {
     
     START_PROFILE(kernel_execution, bfp_profiler, 10)
     
-    bo_in_fp32_a.sync(XCL_BO_SYNC_BO_TO_DEVICE);
-    bo_in_exp_a.sync(XCL_BO_SYNC_BO_TO_DEVICE);
-    bo_in_sign_a.sync(XCL_BO_SYNC_BO_TO_DEVICE);
-    bo_in_mant_a.sync(XCL_BO_SYNC_BO_TO_DEVICE);
-    bo_in_exp_b.sync(XCL_BO_SYNC_BO_TO_DEVICE);
-    bo_in_sign_b.sync(XCL_BO_SYNC_BO_TO_DEVICE);
-    bo_in_mant_b.sync(XCL_BO_SYNC_BO_TO_DEVICE);
+    bo_in_fp32.sync(XCL_BO_SYNC_BO_TO_DEVICE);
+    bo_in_bfp_a.sync(XCL_BO_SYNC_BO_TO_DEVICE);
+    bo_in_bfp_b.sync(XCL_BO_SYNC_BO_TO_DEVICE);
 
     std::cout << "Executing kernel: " << OP_NAMES[operation] << "..." << std::endl;
+    
+    // KERNEL CALL (7 arguments in declaration order)
     auto run = bfp_kernel(
-        operation,
-        n_blocks,
-        bo_in_fp32_a,
-        bo_in_exp_a,
-        bo_in_sign_a,
-        bo_in_mant_a,
-        bo_in_exp_b,
-        bo_in_sign_b,
-        bo_in_mant_b,
-        bo_out_fp32,
-        bo_out_exp,
-        bo_out_sign,
-        bo_out_mant
+        operation,      // 0: operation code
+        n_blocks,       // 1: number of blocks
+        bo_in_fp32,     // 2: FP32 input (for ENCODE)
+        bo_in_bfp_a,    // 3: BFP input A (compact)
+        bo_in_bfp_b,    // 4: BFP input B (compact)
+        bo_out_fp32,    // 5: FP32 output (for DECODE)
+        bo_out_bfp      // 6: BFP output (compact)
     );
     
     run.wait();
@@ -361,9 +264,7 @@ int main(int argc, char** argv) {
 
     std::cout << "Reading output buffers from device..." << std::endl;
     bo_out_fp32.sync(XCL_BO_SYNC_BO_FROM_DEVICE);
-    bo_out_exp.sync(XCL_BO_SYNC_BO_FROM_DEVICE);
-    bo_out_sign.sync(XCL_BO_SYNC_BO_FROM_DEVICE);
-    bo_out_mant.sync(XCL_BO_SYNC_BO_FROM_DEVICE);
+    bo_out_bfp.sync(XCL_BO_SYNC_BO_FROM_DEVICE);
     
     END_PROFILE(kernel_execution);
 
@@ -372,53 +273,90 @@ int main(int argc, char** argv) {
     std::cout << "Results" << std::endl;
     std::cout << "========================================" << std::endl;
     
-    std::cout << "\nFirst block (8 elements):" << std::endl;
-    for (int i = 0; i < 8; ++i) {
-        if (operation == OP_DECODE) {
-            std::cout << "  [" << i << "] FP32: " << bo_out_fp32_map[i] 
+    if (operation == OP_DECODE) {
+        // DECODE: output is FP32
+        std::cout << "\nFirst block (8 elements) - FP32 output:" << std::endl;
+        for (int i = 0; i < 8; ++i) {
+            std::cout << "  [" << i << "] Result: " << bo_out_fp32_map[i] 
                       << " (expected: " << golden_ref[i] << ")" << std::endl;
-        } else if (operation == OP_ENCODE) {
-            std::cout << "  [" << i << "] BFP - sign: " << bo_out_sign_map[i]
-                      << ", mant: " << bo_out_mant_map[i] << std::endl;
-            if (i == 0) {
-                std::cout << "  Block exp_shared: " << bo_out_exp_map[0] << std::endl;
+        }
+        
+    } else {
+        // ENCODE or arithmetic ops: output is BFP (compact)
+        // Unpack first block to display
+        SimpleBFP result_blk0;
+        unpack_bfp_block_cpu(bo_out_bfp_map, 0, result_blk0);
+        
+        std::cout << "\nFirst block - BFP output (unpacked):" << std::endl;
+        std::cout << "  exp_shared: " << result_blk0.exp_shared << std::endl;
+        
+        for (int i = 0; i < 8; ++i) {
+            std::cout << "  [" << i << "] sign: " << result_blk0.sign[i]
+                      << ", mant: " << result_blk0.mant[i]
+                      << ", delta: " << result_blk0.delta[i];
+            
+            // Decode to FP32 for comparison
+            float decoded = decode_bfp_element_to_fp32(result_blk0, i);
+            std::cout << " -> FP32: " << decoded;
+            
+            if (operation == OP_ENCODE) {
+                std::cout << " (input: " << A_fp[i] << ")";
             }
-        } else {
-            std::cout << "  [" << i << "] BFP - sign: " << bo_out_sign_map[i]
-                      << ", mant: " << bo_out_mant_map[i] << std::endl;
+            std::cout << std::endl;
         }
     }
 
-    // Validate results for operations with FP32 output
+    // Validate results
+    std::cout << "\n========================================" << std::endl;
+    std::cout << "Validation" << std::endl;
+    std::cout << "========================================" << std::endl;
+    
     if (operation == OP_DECODE) {
+        // Direct comparison with FP32 output
         double mae = 0.0, mape = 0.0;
-        compute_metrics(golden_ref.data(), bo_out_fp32_map, size, mae, mape);
+        compute_metrics(golden_ref.data(), bo_out_fp32_map, size_fp32, mae, mape);
         
-        std::cout << "\n========================================" << std::endl;
-        std::cout << "Accuracy Metrics" << std::endl;
-        std::cout << "========================================" << std::endl;
+        std::cout << "MAE:  " << mae << std::endl;
+        std::cout << "MAPE: " << mape << "%" << std::endl;
+        
+        bool passed = (mae < 0.1 && mape < 5.0);
+        std::cout << "\n" << (passed ? "✓ TEST PASSED" : "✗ TEST FAILED") << std::endl;
+        
+    } else if (operation == OP_ENCODE) {
+        // For ENCODE, verify that output has non-zero data
+        bool has_data = false;
+        for (unsigned int i = 0; i < size_bfp; ++i) {
+            if (bo_out_bfp_map[i] != 0) {
+                has_data = true;
+                break;
+            }
+        }
+        std::cout << (has_data ? "✓ TEST PASSED (data encoded)" : "✗ TEST FAILED (no data)") << std::endl;
+        
+    } else {
+        // For arithmetic operations, decode the result and compare
+        std::vector<float> decoded_result(size_fp32);
+        
+        for (unsigned int blk = 0; blk < n_blocks; ++blk) {
+            unsigned int fp_offset = blk * N;
+            unsigned int bfp_offset = blk * BFP_BLOCK_SIZE;
+            
+            SimpleBFP result_blk;
+            unpack_bfp_block_cpu(bo_out_bfp_map, bfp_offset, result_blk);
+            
+            for (int i = 0; i < N; ++i) {
+                decoded_result[fp_offset + i] = decode_bfp_element_to_fp32(result_blk, i);
+            }
+        }
+        
+        double mae = 0.0, mape = 0.0;
+        compute_metrics(golden_ref.data(), decoded_result.data(), size_fp32, mae, mape);
+        
         std::cout << "MAE:  " << mae << std::endl;
         std::cout << "MAPE: " << mape << "%" << std::endl;
         
         bool passed = (mae < 1.0 && mape < 10.0);
         std::cout << "\n" << (passed ? "✓ TEST PASSED" : "✗ TEST FAILED") << std::endl;
-        
-    } else if (operation == OP_ENCODE) {
-        // For ENCODE, we can verify that output is non-zero
-        bool has_data = false;
-        for (unsigned int i = 0; i < size; ++i) {
-            if (bo_out_mant_map[i] != 0) {
-                has_data = true;
-                break;
-            }
-        }
-        std::cout << "\n" << (has_data ? "✓ TEST PASSED (data encoded)" : "✗ TEST FAILED (no data)") << std::endl;
-        
-    } else {
-        // For arithmetic operations, decode the result and compare
-        std::cout << "\nNote: Arithmetic operation completed. " 
-                  << "Decode result to validate against golden reference." << std::endl;
-        std::cout << "✓ TEST COMPLETED" << std::endl;
     }
 
     std::cout << "\n" << bfp_profiler << std::endl;
