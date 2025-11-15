@@ -1,89 +1,60 @@
-# Block Floating-Point(BFP) Unit in FPGA for Hardware Acceleration using HLS
+# Block Floating-Point (BFP) Unit in FPGA for Hardware Acceleration using HLS
 
-Block Floating Point (BFP) arithmetic operations accelerated using FPGA.
+Implementación de una unidad **Block Floating-Point (BFP)** para operaciones aritméticas en FPGA, diseñada y evaluada usando **Vitis HLS 2024.2**.  
+El proyecto incluye el **kernel hardware en HLS**, el **host en C++ con XRT**, scripts de síntesis y **resultados experimentales**.
 
-## Quick Start
-
-```bash
-# 1. Setup environment
-source /tools/Xilinx/Vitis/2024.2/settings64.sh
-source /opt/xilinx/xrt/setup.sh
-
-# 2. Build and run
-make                  # Build everything (2-4 hours)
-make flash            # Program FPGA
-make test             # Run tests
-```
-
-## Configuration
-
-- **Platform**: Alveo U55C (xcu55c-fsvh2892-2L-e)
-- **Precision**: WE=5 bits, WM=7 bits
-- **Block Size**: 16 elements
-- **Operations**: ENCODE, DECODE, ADD, SUB, MUL, DIV, RCP
-
-## Project Structure
-
-```
-bfp_alveo/
-├── HW/                 # Vitis HLS kernels
-│   ├── src/            # BFP implementation
-│   └── Makefile        # Build kernel
-├── SW/                 # XRT host application
-│   ├── src/            # Host code
-│   └── Makefile        # Build host
-├── Makefile            # Main build
-└── GUIDE.md            # Complete documentation
-```
-
-## Test Flow
-
-```
-Input (FP32) → ENCODE → BFP OPS (ADD/MUL/DIV) → DECODE → Output (FP32)
-                ↓                                    ↓
-         [16 x (5+7+1) bits]              [Verified vs FP32]
-```
-
-## Build Targets
-
-```bash
-make           # Build hardware + software
-make hw        # Build kernel (slow)
-make hw-emu    # Build emulation (fast)
-make sw        # Build host app
-make flash     # Program FPGA
-make test      # Run test suite
-make clean     # Clean all
-```
-
-## Requirements
-
-- Vitis 2024.2
-- XRT (Xilinx Runtime)
-- Alveo U55C with XDMA shell
-- C++17 compiler
-
-## Documentation
-
-See **[GUIDE.md](GUIDE.md)** for:
-- Detailed build instructions
-- PYNQ integration
-- Troubleshooting
-- Performance tuning
-
-## Support
-
-- **Lab**: ECASLab - Instituto Tecnológico de Costa Rica
-- **Hardware**: Alveo U55C @ ETH Zurich HACC
-- **GitHub**: https://github.com/ECASLab/
-
-## License
-
-- Block Floating Point
-- Copyright (c) 2025 Steven Arias Gutierrez
-
-[Texto completo de la licencia elegida]
+> Proyecto desarrollado como parte de un Trabajo Final de Graduación en Ingeniería Electrónica (Instituto Tecnológico de Costa Rica).
 
 ---
 
-**ECASLab** | *Efficient Computing Across the Stack*
+## 1. Características principales
+
+- **Formato BFP parametrizable**
+  - Exponente compartido por bloque.
+  - Mantisas enteras con configuración `WE = 5` bits (exponente) y `WM = 7` bits (mantisa).
+  - Tamaño de bloque por defecto: `N = 16` elementos.
+
+- **Operaciones soportadas**
+  - `ENCODE`  – FP32 → BFP.
+  - `DECODE`  – BFP → FP32.
+  - `ADD`     – suma de bloques BFP.
+  - `SUB`     – resta de bloques BFP.
+  - `MUL`     – multiplicación de bloques BFP.
+  - `DIV`     – división de bloques BFP.
+  - `RCP`     – recíproco de bloque BFP.
+
+- **Plataforma objetivo**
+  - **FPGA:** Alveo **U55C** (`xcu55c-fsvh2892-2L-e`).
+  - **Herramienta:** Xilinx **Vitis 2024.2** + **XRT**.
+  - **Host:** C++17 + XRT (Xilinx Runtime).
+
+- **Enfoque de diseño**
+  - Kernels en **C/C++ HLS** con optimizaciones para:
+    - Paralelismo a nivel de datos.
+    - Uso eficiente de LUTs, FFs, BRAMs y DSPs.
+    - Reducción de latencia mediante `PIPELINE`, `DATAFLOW` y optimización de accesos a memoria.
+
+---
+
+## 2. Estructura del repositorio
+
+La organización actual del proyecto es:
+
+```text
+BFP-unit/
+├── C++/                 # Modelos de referencia en C++ / pruebas de precisión en CPU
+│   └── ...             
+├── HW/                  # Kernels HLS (unidad BFP para FPGA)
+│   ├── src/             # Implementaciones BFP (encode, decode, add, mul, div, rcp, etc.)
+│   └── Makefile         # Síntesis del kernel y exportación
+├── SW/                  # Aplicación host (XRT)
+│   ├── src/             # Código host en C++ (manejo de buffers, comandos, profiling)
+│   └── Makefile         # Compilación del ejecutable host
+├── Results/             # Resultados de síntesis y experimentos (timing, recursos, etc.)
+│   └── ...             
+├── Documentation/       # Documentos de apoyo (memoria, diagramas, notas técnicas)
+│   └── ...             
+├── Makefile             # Makefile principal (HW + SW + targets de prueba)
+└── README.md            # Este archivo
+
+
