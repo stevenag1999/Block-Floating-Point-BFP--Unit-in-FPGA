@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <cstdint>
 #include <cstring>
 #include <cmath>
@@ -337,25 +338,51 @@ int main(int argc, char** argv) {
     
     END_PROFILE(kernel_execution);
 
-    // Display results (UPDATED: unpack from compact format)
+    // Display results (showing first 8 elements + raw compact vector for ENCODE)
     std::cout << "\n========================================" << std::endl;
     std::cout << "Results" << std::endl;
     std::cout << "========================================" << std::endl;
     
-    std::cout << "\nFirst block (8 elements):" << std::endl;
-    
-    if (operation == OP_DECODE) {
-        for (int i = 0; i < 8; ++i) {
-            std::cout << "  [" << i << "] FP32: " << bo_out_fp32_map[i] 
-                      << " (expected: " << golden_ref[i] << ")" << std::endl;
+    if (operation == OP_ENCODE) {
+        // Show raw compact vector for first block
+        std::cout << "\nFirst block - Raw compact vector (first 25 values):" << std::endl;
+        std::cout << "  [";
+        for (int i = 0; i < 25 && i < BFP_BLOCK_SIZE; ++i) {
+            std::cout << "0x" << std::hex << std::setw(8) << std::setfill('0') 
+                      << bo_out_bfp_map[i] << std::dec;
+            if (i < 24) std::cout << ", ";
+            if ((i + 1) % 8 == 0) std::cout << "\n   ";
         }
-    } else {
-        // Unpack first block to display
+        std::cout << "]" << std::endl;
+        
+        // Unpack and show interpreted values
         uint32_t exp_out;
         uint32_t sign_out[N], mant_out[N], delta_out[N];
         unpack_compact_to_bfp(bo_out_bfp_map, 0, exp_out, sign_out, mant_out, delta_out);
         
-        std::cout << "  Block exp_shared: " << exp_out << std::endl;
+        std::cout << "\nFirst block - Decoded format (first 8 elements):" << std::endl;
+        std::cout << "  exp_shared: " << exp_out << std::endl;
+        for (int i = 0; i < 8; ++i) {
+            std::cout << "  [" << i << "] sign: " << sign_out[i]
+                      << ", mant: " << mant_out[i]
+                      << ", delta: " << delta_out[i] << std::endl;
+        }
+        
+    } else if (operation == OP_DECODE) {
+        std::cout << "\nFirst block - FP32 output (first 8 elements):" << std::endl;
+        for (int i = 0; i < 8; ++i) {
+            std::cout << "  [" << i << "] FP32: " << bo_out_fp32_map[i] 
+                      << " (expected: " << golden_ref[i] << ")" << std::endl;
+        }
+        
+    } else {
+        // Arithmetic operations: show BFP result
+        uint32_t exp_out;
+        uint32_t sign_out[N], mant_out[N], delta_out[N];
+        unpack_compact_to_bfp(bo_out_bfp_map, 0, exp_out, sign_out, mant_out, delta_out);
+        
+        std::cout << "\nFirst block - " << OP_NAMES[operation] << " result (first 8 elements):" << std::endl;
+        std::cout << "  exp_shared: " << exp_out << std::endl;
         for (int i = 0; i < 8; ++i) {
             std::cout << "  [" << i << "] sign: " << sign_out[i]
                       << ", mant: " << mant_out[i]
