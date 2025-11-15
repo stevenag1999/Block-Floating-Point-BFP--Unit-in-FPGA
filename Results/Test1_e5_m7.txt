@@ -1,0 +1,610 @@
+========================================
+BFP Accelerator Test Suite - ENHANCED
+========================================
+
+Configuration:
+  Executable: ./bfp_host
+  N_BLOCKS: 2
+  Elements per block: 16
+  Total elements: 32
+
+Starting tests with 2 blocks...
+
+========================================
+Test 1: ENCODE Operation
+========================================
+========================================
+BFP Accelerator Test (COMPACT FORMAT)
+========================================
+Operation: ENCODE (0)
+Number of blocks: 2
+Block size (N): 16
+BFP Config: WE=5, WM=7
+BFP_BLOCK_SIZE: 49 uints/block
+
+Opening device 0...
+Loading xclbin: ../HW/package.hw/kernels.xclbin...
+Creating kernel handle...
+Allocating buffers in global memory...
+Preparing test data...
+Syncing input buffers to device...
+Executing kernel: ENCODE...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: ENCODE...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: ENCODE...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: ENCODE...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: ENCODE...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: ENCODE...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: ENCODE...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: ENCODE...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: ENCODE...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: ENCODE...
+Kernel completed!
+Reading output buffers from device...
+
+========================================
+Results
+========================================
+
+First block - Raw compact vector (first 25 values):
+  [0x00000015, 0x00000000, 0x00000019, 0x00000003, 0x00000000, 0x0000000d, 0x00000004, 0x00000000, 
+   0x00000014, 0x00000003, 0x00000000, 0x0000000d, 0x00000004, 0x00000000, 0x00000012, 0x00000003, 
+   0x00000000, 0x00000005, 0x00000005, 0x00000000, 0x00000016, 0x00000003, 0x00000000, 0x00000010, 
+   0x00000003]
+
+First block - Decoded format (first 8 elements):
+  exp_shared: 21
+  [0] sign: 0, mant: 25, delta: 3
+  [1] sign: 0, mant: 13, delta: 4
+  [2] sign: 0, mant: 20, delta: 3
+  [3] sign: 0, mant: 13, delta: 4
+  [4] sign: 0, mant: 18, delta: 3
+  [5] sign: 0, mant: 5, delta: 5
+  [6] sign: 0, mant: 22, delta: 3
+  [7] sign: 0, mant: 16, delta: 3
+
+✓ TEST PASSED (data encoded)
+
+Printing profile results: 
+-- setup_time -- (AVG: 0.288735, STD: 0, IT:1)
+-- kernel_execution -- (AVG: 0.000254145, STD: 0.000146387, IT:10)
+
+
+========================================
+
+Key Results:
+  exp_shared: 21
+✓ TEST PASSED (data encoded)
+  Kernel execution time: 0.000254145s
+
+✓ ENCODE test completed
+
+========================================
+Test 2: DECODE Operation
+========================================
+========================================
+BFP Accelerator Test (COMPACT FORMAT)
+========================================
+Operation: DECODE (1)
+Number of blocks: 2
+Block size (N): 16
+BFP Config: WE=5, WM=7
+BFP_BLOCK_SIZE: 49 uints/block
+
+Opening device 0...
+Loading xclbin: ../HW/package.hw/kernels.xclbin...
+Creating kernel handle...
+Allocating buffers in global memory...
+Preparing test data...
+Syncing input buffers to device...
+Executing kernel: DECODE...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: DECODE...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: DECODE...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: DECODE...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: DECODE...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: DECODE...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: DECODE...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: DECODE...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: DECODE...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: DECODE...
+Kernel completed!
+Reading output buffers from device...
+
+========================================
+Results
+========================================
+
+First block - FP32 output (first 8 elements):
+  [0] FP32: 12.5 (expected: 12.35)
+  [1] FP32: 6.5 (expected: 6.5)
+  [2] FP32: 10 (expected: 10.2)
+  [3] FP32: 6.5 (expected: 6.6)
+  [4] FP32: 9 (expected: 8.8)
+  [5] FP32: 2.5 (expected: 2.56)
+  [6] FP32: 11 (expected: 11.11)
+  [7] FP32: 8 (expected: 8)
+
+========================================
+Accuracy Metrics
+========================================
+MAE:  0.0415624
+MAPE: 3.64652%
+
+✓ TEST PASSED
+
+Printing profile results: 
+-- setup_time -- (AVG: 0.111773, STD: 0, IT:1)
+-- kernel_execution -- (AVG: 0.000202334, STD: 4.6414e-05, IT:10)
+
+
+========================================
+
+Key Results:
+  Mean Absolute Error: 0.0415624
+  Mean Absolute % Error: 3.64652%
+✓ TEST PASSED
+  Kernel execution time: 0.000202334s
+
+✓ DECODE test completed
+
+========================================
+Test 3: ADD Operation
+========================================
+========================================
+BFP Accelerator Test (COMPACT FORMAT)
+========================================
+Operation: ADD (2)
+Number of blocks: 2
+Block size (N): 16
+BFP Config: WE=5, WM=7
+BFP_BLOCK_SIZE: 49 uints/block
+
+Opening device 0...
+Loading xclbin: ../HW/package.hw/kernels.xclbin...
+Creating kernel handle...
+Allocating buffers in global memory...
+Preparing test data...
+Syncing input buffers to device...
+Executing kernel: ADD...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: ADD...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: ADD...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: ADD...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: ADD...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: ADD...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: ADD...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: ADD...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: ADD...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: ADD...
+Kernel completed!
+Reading output buffers from device...
+
+========================================
+Results
+========================================
+
+First block - ADD result (first 8 elements):
+  exp_shared: 21
+
+  [0] 12.35 + 2 = 14.5 (expected: 14.35) [BFP: sign=0, mant=29, delta=3]
+  [1] 6.5 + 1 = 7.5 (expected: 7.5) [BFP: sign=0, mant=15, delta=4]
+  [2] 10.2 + 2 = 12 (expected: 12.2) [BFP: sign=0, mant=24, delta=3]
+  [3] 6.6 + 3 = 9.5 (expected: 9.6) [BFP: sign=0, mant=19, delta=3]
+  [4] 8.8 + 2 = 11 (expected: 10.8) [BFP: sign=0, mant=22, delta=3]
+  [5] 2.56 + 2 = 4.5 (expected: 4.56) [BFP: sign=0, mant=9, delta=4]
+  [6] 11.11 + 2 = 13 (expected: 13.11) [BFP: sign=0, mant=26, delta=3]
+  [7] 8 + 2 = 10 (expected: 10) [BFP: sign=0, mant=20, delta=3]
+
+Note: Arithmetic operation completed.
+✓ TEST COMPLETED
+
+Printing profile results: 
+-- setup_time -- (AVG: 0.117699, STD: 0, IT:1)
+-- kernel_execution -- (AVG: 0.00015959, STD: 4.55215e-05, IT:10)
+
+
+========================================
+
+Key Results:
+  exp_shared: 21
+  Sample result: A + B
+✓ TEST COMPLETED
+  Kernel execution time: 0.00015959s
+
+✓ ADD test completed
+
+========================================
+Test 4: SUB Operation
+========================================
+========================================
+BFP Accelerator Test (COMPACT FORMAT)
+========================================
+Operation: SUB (3)
+Number of blocks: 2
+Block size (N): 16
+BFP Config: WE=5, WM=7
+BFP_BLOCK_SIZE: 49 uints/block
+
+Opening device 0...
+Loading xclbin: ../HW/package.hw/kernels.xclbin...
+Creating kernel handle...
+Allocating buffers in global memory...
+Preparing test data...
+Syncing input buffers to device...
+Executing kernel: SUB...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: SUB...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: SUB...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: SUB...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: SUB...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: SUB...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: SUB...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: SUB...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: SUB...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: SUB...
+Kernel completed!
+Reading output buffers from device...
+
+========================================
+Results
+========================================
+
+First block - SUB result (first 8 elements):
+  exp_shared: 21
+
+  [0] 12.35 - 2 = 10.5 (expected: 10.35) [BFP: sign=0, mant=21, delta=3]
+  [1] 6.5 - 1 = 5.5 (expected: 5.5) [BFP: sign=0, mant=11, delta=4]
+  [2] 10.2 - 2 = 8 (expected: 8.2) [BFP: sign=0, mant=16, delta=3]
+  [3] 6.6 - 3 = 3.5 (expected: 3.6) [BFP: sign=0, mant=7, delta=5]
+  [4] 8.8 - 2 = 7 (expected: 6.8) [BFP: sign=0, mant=14, delta=4]
+  [5] 2.56 - 2 = 0.5 (expected: 0.56) [BFP: sign=0, mant=1, delta=7]
+  [6] 11.11 - 2 = 9 (expected: 9.11) [BFP: sign=0, mant=18, delta=3]
+  [7] 8 - 2 = 6 (expected: 6) [BFP: sign=0, mant=12, delta=4]
+
+Note: Arithmetic operation completed.
+✓ TEST COMPLETED
+
+Printing profile results: 
+-- setup_time -- (AVG: 0.117195, STD: 0, IT:1)
+-- kernel_execution -- (AVG: 0.000188844, STD: 5.74982e-05, IT:10)
+
+
+========================================
+
+Key Results:
+  exp_shared: 21
+  Sample result: A - B
+✓ TEST COMPLETED
+  Kernel execution time: 0.000188844s
+
+✓ SUB test completed
+
+========================================
+Test 5: MUL Operation
+========================================
+========================================
+BFP Accelerator Test (COMPACT FORMAT)
+========================================
+Operation: MUL (4)
+Number of blocks: 2
+Block size (N): 16
+BFP Config: WE=5, WM=7
+BFP_BLOCK_SIZE: 49 uints/block
+
+Opening device 0...
+Loading xclbin: ../HW/package.hw/kernels.xclbin...
+Creating kernel handle...
+Allocating buffers in global memory...
+Preparing test data...
+Syncing input buffers to device...
+Executing kernel: MUL...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: MUL...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: MUL...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: MUL...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: MUL...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: MUL...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: MUL...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: MUL...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: MUL...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: MUL...
+Kernel completed!
+Reading output buffers from device...
+
+========================================
+Results
+========================================
+
+First block - MUL result (first 8 elements):
+  exp_shared: 22
+
+  [0] 12.35 * 2 = 25 (expected: 24.7) [BFP: sign=0, mant=25, delta=3]
+  [1] 6.5 * 1 = 6 (expected: 6.5) [BFP: sign=0, mant=6, delta=5]
+  [2] 10.2 * 2 = 20 (expected: 20.4) [BFP: sign=0, mant=20, delta=3]
+  [3] 6.6 * 3 = 20 (expected: 19.8) [BFP: sign=0, mant=20, delta=3]
+  [4] 8.8 * 2 = 18 (expected: 17.6) [BFP: sign=0, mant=18, delta=3]
+  [5] 2.56 * 2 = 5 (expected: 5.12) [BFP: sign=0, mant=5, delta=5]
+  [6] 11.11 * 2 = 22 (expected: 22.22) [BFP: sign=0, mant=22, delta=3]
+  [7] 8 * 2 = 16 (expected: 16) [BFP: sign=0, mant=16, delta=3]
+
+Note: Arithmetic operation completed.
+✓ TEST COMPLETED
+
+Printing profile results: 
+-- setup_time -- (AVG: 0.114266, STD: 0, IT:1)
+-- kernel_execution -- (AVG: 0.000194911, STD: 7.09037e-05, IT:10)
+
+
+========================================
+
+Key Results:
+  exp_shared: 22
+  Sample result: A * B
+✓ TEST COMPLETED
+  Kernel execution time: 0.000194911s
+
+✓ MUL test completed
+
+========================================
+Test 6: DIV Operation
+========================================
+========================================
+BFP Accelerator Test (COMPACT FORMAT)
+========================================
+Operation: DIV (5)
+Number of blocks: 2
+Block size (N): 16
+BFP Config: WE=5, WM=7
+BFP_BLOCK_SIZE: 49 uints/block
+
+Opening device 0...
+Loading xclbin: ../HW/package.hw/kernels.xclbin...
+Creating kernel handle...
+Allocating buffers in global memory...
+Preparing test data...
+Syncing input buffers to device...
+Executing kernel: DIV...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: DIV...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: DIV...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: DIV...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: DIV...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: DIV...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: DIV...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: DIV...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: DIV...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: DIV...
+Kernel completed!
+Reading output buffers from device...
+
+========================================
+Results
+========================================
+
+First block - DIV result (first 8 elements):
+  exp_shared: 19
+
+  [0] 12.35 / 2 = 6.25 (expected: 6.175) [BFP: sign=0, mant=50, delta=2]
+  [1] 6.5 / 1 = 6.5 (expected: 6.5) [BFP: sign=0, mant=52, delta=2]
+  [2] 10.2 / 2 = 5 (expected: 5.1) [BFP: sign=0, mant=40, delta=2]
+  [3] 6.6 / 3 = 2.125 (expected: 2.2) [BFP: sign=0, mant=17, delta=3]
+  [4] 8.8 / 2 = 4.5 (expected: 4.4) [BFP: sign=0, mant=36, delta=2]
+  [5] 2.56 / 2 = 1.25 (expected: 1.28) [BFP: sign=0, mant=10, delta=4]
+  [6] 11.11 / 2 = 5.5 (expected: 5.555) [BFP: sign=0, mant=44, delta=2]
+  [7] 8 / 2 = 4 (expected: 4) [BFP: sign=0, mant=32, delta=2]
+
+Note: Arithmetic operation completed.
+✓ TEST COMPLETED
+
+Printing profile results: 
+-- setup_time -- (AVG: 0.111451, STD: 0, IT:1)
+-- kernel_execution -- (AVG: 0.000198387, STD: 7.92879e-05, IT:10)
+
+
+========================================
+
+Key Results:
+  exp_shared: 19
+  Sample result: A / B
+✓ TEST COMPLETED
+  Kernel execution time: 0.000198387s
+
+✓ DIV test completed
+
+========================================
+Test 7: RCP (Reciprocal) Operation
+========================================
+========================================
+BFP Accelerator Test (COMPACT FORMAT)
+========================================
+Operation: RCP (6)
+Number of blocks: 2
+Block size (N): 16
+BFP Config: WE=5, WM=7
+BFP_BLOCK_SIZE: 49 uints/block
+
+Opening device 0...
+Loading xclbin: ../HW/package.hw/kernels.xclbin...
+Creating kernel handle...
+Allocating buffers in global memory...
+Preparing test data...
+Syncing input buffers to device...
+Executing kernel: RCP...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: RCP...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: RCP...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: RCP...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: RCP...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: RCP...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: RCP...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: RCP...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: RCP...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: RCP...
+Kernel completed!
+Reading output buffers from device...
+
+========================================
+Results
+========================================
+
+First block - RCP result (first 8 elements):
+  exp_shared: 15
+
+  [0] 1 / 2 = 0.5 (expected: 0.5) [BFP: sign=0, mant=64, delta=1]
+  [1] 1 / 1 = 1 (expected: 1) [BFP: sign=0, mant=128, delta=0]
+  [2] 1 / 2 = 0.5 (expected: 0.5) [BFP: sign=0, mant=64, delta=1]
+  [3] 1 / 3 = 0.328125 (expected: 0.333333) [BFP: sign=0, mant=42, delta=2]
+  [4] 1 / 2 = 0.5 (expected: 0.5) [BFP: sign=0, mant=64, delta=1]
+  [5] 1 / 2 = 0.5 (expected: 0.5) [BFP: sign=0, mant=64, delta=1]
+  [6] 1 / 2 = 0.5 (expected: 0.5) [BFP: sign=0, mant=64, delta=1]
+  [7] 1 / 2 = 0.5 (expected: 0.5) [BFP: sign=0, mant=64, delta=1]
+
+Note: Arithmetic operation completed.
+✓ TEST COMPLETED
+
+Printing profile results: 
+-- setup_time -- (AVG: 0.111545, STD: 0, IT:1)
+-- kernel_execution -- (AVG: 0.000193789, STD: 6.18193e-05, IT:10)
+
+
+========================================
+
+Key Results:
+  exp_shared: 15
+  Sample result: 1 / B
+✓ TEST COMPLETED
+  Kernel execution time: 0.000193789s
+
+✓ RCP test completed
+
+========================================
+✓ All tests completed successfully!
+========================================
+
+Summary:
+  • ENCODE: Converts FP32 to BFP format
+  • DECODE: Converts BFP back to FP32
+  • ADD/SUB/MUL/DIV/RCP: Arithmetic in BFP
+
+Note: Display shows first 8 elements per block for brevity.
+      Full 2 blocks x 16 elements = 32 total elements processed.
