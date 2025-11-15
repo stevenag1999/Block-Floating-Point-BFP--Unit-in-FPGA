@@ -1,158 +1,539 @@
-lleonvega@hacc-build-01:~/ecaslab/steven.arias/bfp_fpga/HW$ cat v++_kernels.link.log 
-INFO: [v++ 60-1306] Additional information associated with this v++ link can be found at:
-	Reports: /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/reports/link
-	Log files: /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/logs/link
-INFO: [v++ 60-1548] Creating build summary session with primary output /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/build.hw/kernels.link.xclbin.link_summary, at Sat Nov 15 00:57:30 2025
-INFO: [v++ 60-1315] Creating rulecheck session with output '/pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/reports/link/v++_link_kernels.link_guidance.html', at Sat Nov 15 00:57:30 2025
-INFO: [v++ 60-895]   Target platform: /opt/xilinx/platforms/xilinx_u55c_gen3x16_xdma_3_202210_1/xilinx_u55c_gen3x16_xdma_3_202210_1.xpfm
-INFO: [v++ 60-1578]   This platform contains Xilinx Shell Archive '/opt/xilinx/platforms/xilinx_u55c_gen3x16_xdma_3_202210_1/hw/hw.xsa'
-INFO: [v++ 74-78] Compiler Version string: 2024.2
-INFO: [v++ 60-1302] Platform 'xilinx_u55c_gen3x16_xdma_3_202210_1.xpfm' has been explicitly enabled for this release.
-INFO: [v++ 60-629] Linking for hardware target
-INFO: [v++ 60-423]   Target device: xilinx_u55c_gen3x16_xdma_3_202210_1
-INFO: [v++ 60-1332] Run 'run_link' status: Not started
-INFO: [v++ 60-1443] [00:57:37] Run run_link: Step system_link: Started
-INFO: [v++ 60-1453] Command Line: system_link --xo /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/bfp_kernel.xo -keep --xpfm /opt/xilinx/platforms/xilinx_u55c_gen3x16_xdma_3_202210_1/xilinx_u55c_gen3x16_xdma_3_202210_1.xpfm --target hw --output_dir /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/link/int --temp_dir /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/link/sys_link
-INFO: [v++ 60-1454] Run Directory: /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/link/run_link
-INFO: [SYSTEM_LINK 82-70] Extracting xo v3 file /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/bfp_kernel.xo
-INFO: [SYSTEM_LINK 82-53] Creating IP database /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/link/sys_link/_sysl/.cdb/xd_ip_db.xml
-INFO: [SYSTEM_LINK 82-38] [00:57:43] build_xd_ip_db started: /tools/Xilinx/Vitis/2024.2/bin/build_xd_ip_db -ip_search 0  -sds-pf /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/link/sys_link/hw.hpfm -clkid 0 -ip /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/link/sys_link/iprepo/xilinx_com_hls_bfp_kernel_1_0,bfp_kernel -o /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/link/sys_link/_sysl/.cdb/xd_ip_db.xml
-INFO: [SYSTEM_LINK 82-37] [00:57:44] build_xd_ip_db finished successfully
-Time (s): cpu = 00:00:00.38 ; elapsed = 00:00:00.73 . Memory (MB): peak = 475.273 ; gain = 0.000 ; free physical = 206003 ; free virtual = 334510
-INFO: [SYSTEM_LINK 82-51] Create system connectivity graph
-INFO: [SYSTEM_LINK 82-102] Applying explicit connections to the system connectivity graph: /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/link/sys_link/cfgraph/cfgen_cfgraph.xml
-INFO: [SYSTEM_LINK 82-38] [00:57:44] cfgen started: /tools/Xilinx/Vitis/2024.2/bin/cfgen  -dpa_mem_offload false -dpa_aie_mem_offload false -dmclkid 0 -r /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/link/sys_link/_sysl/.cdb/xd_ip_db.xml -o /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/link/sys_link/cfgraph/cfgen_cfgraph.xml
-INFO: [CFGEN 83-0] Kernel Specs: 
-INFO: [CFGEN 83-0]   kernel: bfp_kernel, num: 1  {bfp_kernel_1}
-INFO: [CFGEN 83-2226] Inferring mapping for argument bfp_kernel_1.in_fp32 to HBM[0]
-INFO: [CFGEN 83-2226] Inferring mapping for argument bfp_kernel_1.out_fp32 to HBM[0]
-INFO: [CFGEN 83-2226] Inferring mapping for argument bfp_kernel_1.in_bfp_a to HBM[0]
-INFO: [CFGEN 83-2226] Inferring mapping for argument bfp_kernel_1.in_bfp_b to HBM[0]
-INFO: [CFGEN 83-2226] Inferring mapping for argument bfp_kernel_1.out_bfp to HBM[0]
-INFO: [SYSTEM_LINK 82-37] [00:57:53] cfgen finished successfully
-Time (s): cpu = 00:00:09 ; elapsed = 00:00:09 . Memory (MB): peak = 475.273 ; gain = 0.000 ; free physical = 206069 ; free virtual = 334576
-INFO: [SYSTEM_LINK 82-52] Create top-level block diagram
-INFO: [SYSTEM_LINK 82-38] [00:57:53] cf2bd started: /tools/Xilinx/Vitis/2024.2/bin/cf2bd  --linux --trace_buffer 1024 --input_file /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/link/sys_link/cfgraph/cfgen_cfgraph.xml --ip_db /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/link/sys_link/_sysl/.cdb/xd_ip_db.xml --cf_name dr --working_dir /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/link/sys_link/_sysl/.xsd --temp_dir /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/link/sys_link --output_dir /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/link/int --target_bd ulp.bd
-INFO: [CF2BD 82-31] Launching cf2xd: cf2xd -linux -trace-buffer 1024 -i /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/link/sys_link/cfgraph/cfgen_cfgraph.xml -r /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/link/sys_link/_sysl/.cdb/xd_ip_db.xml -o dr.xml
-INFO: [CF2BD 82-28] cf2xd finished successfully
-INFO: [CF2BD 82-31] Launching cf_xsd: cf_xsd -disable-address-gen -bd ulp.bd -dn dr -dp /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/link/sys_link/_sysl/.xsd
-INFO: [CF2BD 82-28] cf_xsd finished successfully
-INFO: [SYSTEM_LINK 82-37] [00:57:57] cf2bd finished successfully
-Time (s): cpu = 00:00:03 ; elapsed = 00:00:04 . Memory (MB): peak = 475.273 ; gain = 0.000 ; free physical = 206057 ; free virtual = 334566
-INFO: [v++ 60-1441] [00:57:57] Run run_link: Step system_link: Completed
-Time (s): cpu = 00:00:15 ; elapsed = 00:00:19 . Memory (MB): peak = 505.195 ; gain = 0.000 ; free physical = 206125 ; free virtual = 334633
-INFO: [v++ 60-1443] [00:57:57] Run run_link: Step cf2sw: Started
-INFO: [v++ 60-1453] Command Line: cf2sw -sdsl /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/link/int/sdsl.dat -rtd /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/link/int/cf2sw.rtd -nofilter /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/link/int/cf2sw_full.rtd -xclbin /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/link/int/xclbin_orig.xml -o /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/link/int/xclbin_orig.1.xml
-INFO: [v++ 60-1454] Run Directory: /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/link/run_link
-INFO: [v++ 60-1441] [00:58:02] Run run_link: Step cf2sw: Completed
-Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 505.195 ; gain = 0.000 ; free physical = 206194 ; free virtual = 334704
-INFO: [v++ 60-1443] [00:58:02] Run run_link: Step rtd2_system_diagram: Started
-INFO: [v++ 60-1453] Command Line: rtd2SystemDiagram
-INFO: [v++ 60-1454] Run Directory: /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/link/run_link
-INFO: [v++ 60-1441] [00:58:02] Run run_link: Step rtd2_system_diagram: Completed
-Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.32 . Memory (MB): peak = 505.195 ; gain = 0.000 ; free physical = 206174 ; free virtual = 334683
-INFO: [v++ 60-1443] [00:58:02] Run run_link: Step vpl: Started
-INFO: [v++ 60-1453] Command Line: vpl -t hw -f xilinx_u55c_gen3x16_xdma_3_202210_1 -s --kernel_frequency 200 --remote_ip_cache /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/.ipcache --output_dir /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/link/int --log_dir /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/logs/link --report_dir /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/reports/link --config /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/link/int/vplConfig.ini -k /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/link/int/kernel_info.dat --webtalk_flag Vitis --temp_dir /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/link --no-info --iprepo /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/link/int/xo/ip_repo/xilinx_com_hls_bfp_kernel_1_0 --messageDb /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/link/run_link/vpl.pb /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/link/int/dr.bd.tcl
-INFO: [v++ 60-1454] Run Directory: /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/link/run_link
+lleonvega@alveo-u55c-03:~/ecaslab/steven.arias/bfp_fpga/SW$ chmod +x run_tests.sh 
+lleonvega@alveo-u55c-03:~/ecaslab/steven.arias/bfp_fpga/SW$ ./run_tests.sh 
+========================================
+BFP Accelerator Test Suite
+========================================
 
-****** vpl v2024.2 (64-bit)
-  **** SW Build 5239630 on 2024-11-10-11:19:46
-  **** Start of session at: Sat Nov 15 00:58:04 2025
-    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
-    ** Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+Starting tests with 2 blocks...
 
-INFO: [VPL 60-839] Read in kernel information from file '/pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/link/int/kernel_info.dat'.
-INFO: [VPL 74-78] Compiler Version string: 2024.2
-INFO: [VPL 60-423]   Target device: xilinx_u55c_gen3x16_xdma_3_202210_1
-INFO: [VPL 60-1032] Extracting hardware platform to /pub/scratch/lleonvega/ecaslab/steven.arias/bfp_fpga/HW/tmp.hw/link/vivado/vpl/.local/hw_platform
-[00:58:20] Run vpl: Step create_project: Started
-Creating Vivado project.
-[00:58:27] Run vpl: Step create_project: Completed
-[00:58:27] Run vpl: Step create_bd: Started
-[00:58:57] Run vpl: Step create_bd: Completed
-[00:58:57] Run vpl: Step update_bd: Started
-[00:58:58] Run vpl: Step update_bd: Completed
-[00:58:58] Run vpl: Step generate_target: Started
-[01:00:07] Run vpl: Step generate_target: Completed
-[01:00:07] Run vpl: Step config_hw_runs: Started
-[01:00:21] Run vpl: Step config_hw_runs: Completed
-[01:00:21] Run vpl: Step synth: Started
-[01:00:54] Block-level synthesis in progress, 0 of 8 jobs complete, 7 jobs running.
-[01:01:26] Block-level synthesis in progress, 0 of 8 jobs complete, 7 jobs running.
-[01:01:57] Block-level synthesis in progress, 2 of 8 jobs complete, 5 jobs running.
-[01:02:28] Block-level synthesis in progress, 6 of 8 jobs complete, 1 job running.
-[01:02:59] Block-level synthesis in progress, 6 of 8 jobs complete, 2 jobs running.
-[01:03:30] Block-level synthesis in progress, 6 of 8 jobs complete, 2 jobs running.
-[01:04:02] Block-level synthesis in progress, 7 of 8 jobs complete, 1 job running.
-[01:04:33] Block-level synthesis in progress, 7 of 8 jobs complete, 1 job running.
-[01:05:04] Block-level synthesis in progress, 7 of 8 jobs complete, 1 job running.
-[01:05:35] Block-level synthesis in progress, 7 of 8 jobs complete, 1 job running.
-[01:06:07] Block-level synthesis in progress, 8 of 8 jobs complete, 0 jobs running.
-[01:06:38] Top-level synthesis in progress.
-[01:07:08] Top-level synthesis in progress.
-[01:07:46] Run vpl: Step synth: Completed
-[01:07:46] Run vpl: Step impl: Started
-[01:15:37] Finished 2nd of 6 tasks (FPGA linking synthesized kernels to platform). Elapsed time: 00h 17m 32s 
+----------------------------------------
+Test 1: ENCODE Operation
+----------------------------------------
+========================================
+BFP Accelerator Test (COMPACT FORMAT)
+========================================
+Operation: ENCODE (0)
+Number of blocks: 2
+Block size (N): 16
+BFP Config: WE=5, WM=7
+BFP_BLOCK_SIZE: 49 uints/block
 
-[01:15:37] Starting logic optimization..
-[01:15:37] Phase 1 Initialization
-[01:15:37] Phase 1.1 Core Generation And Design Setup
-[01:16:08] Phase 1.2 Setup Constraints And Sort Netlist
-[01:16:08] Phase 2 Timer Update And Timing Data Collection
-[01:16:08] Phase 2.1 Timer Update
-[01:16:08] Phase 2.2 Timing Data Collection
-[01:16:08] Phase 3 Retarget
-[01:16:08] Phase 4 Constant propagation
-[01:16:08] Phase 5 Sweep
-[01:16:40] Phase 6 BUFG optimization
-[01:16:40] Phase 7 Shift Register Optimization
-[01:16:40] Phase 8 Post Processing Netlist
-[01:16:40] Phase 9 Finalization
-[01:16:40] Phase 9.1 Finalizing Design Cores and Updating Shapes
-[01:17:11] Finished 3rd of 6 tasks (FPGA logic optimization). Elapsed time: 00h 01m 33s 
+Opening device 0...
+Loading xclbin: ../HW/package.hw/kernels.xclbin...
+Creating kernel handle...
+Allocating buffers in global memory...
+Preparing test data...
+Syncing input buffers to device...
+Executing kernel: ENCODE...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: ENCODE...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: ENCODE...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: ENCODE...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: ENCODE...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: ENCODE...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: ENCODE...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: ENCODE...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: ENCODE...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: ENCODE...
+Kernel completed!
+Reading output buffers from device...
 
-[01:17:11] Starting logic placement..
-[01:17:11] Phase 9.2 Verifying Netlist Connectivity
-[01:17:42] Phase 1 Placer Initialization
-[01:17:42] Phase 1.1 Placer Initialization Netlist Sorting
-[01:22:24] Phase 1.2 IO Placement/ Clock Placement/ Build Placer Device
-[01:22:56] Phase 1.3 Build Placer Netlist Model
-[01:24:29] Phase 1.4 Constrain Clocks/Macros
-[01:25:01] Phase 2 Global Placement
-[01:25:01] Phase 2.1 Floorplanning
-[01:25:32] Phase 2.1.1 Partition Driven Placement
-[01:25:32] Phase 2.1.1.1 PBP: Partition Driven Placement
-[01:26:04] Phase 2.1.1.2 PBP: Clock Region Placement
-[01:26:35] Phase 2.1.1.3 PBP: Compute Congestion
-[01:27:07] Phase 2.1.1.4 PBP: UpdateTiming
-[01:27:07] Phase 2.1.1.5 PBP: Add part constraints
-[01:27:07] Phase 2.2 Physical Synthesis After Floorplan
-[01:27:37] Phase 2.3 Update Timing before SLR Path Opt
-[01:27:37] Phase 2.4 Post-Processing in Floorplanning
-[01:27:37] Phase 2.5 Global Place Phase1
-[01:39:08] Phase 2.6 Global Place Phase2
-[01:39:08] Phase 2.6.1 UpdateTiming Before Physical Synthesis
-[01:39:08] Phase 2.6.2 Physical Synthesis In Placer
-[01:40:43] Phase 3 Detail Placement
-[01:41:14] Phase 3.1 Commit Multi Column Macros
-[01:41:14] Phase 3.2 Commit Most Macros & LUTRAMs
-[01:42:16] Phase 3.3 Small Shape DP
-[01:42:16] Phase 3.3.1 Small Shape Clustering
-[01:42:48] Phase 3.3.2 Slice Area Swap
-[01:42:48] Phase 3.3.2.1 Slice Area Swap Initial
-[01:43:19] Phase 3.4 Place Remaining
-[01:43:19] Phase 3.5 Re-assign LUT pins
-[01:43:51] Phase 3.6 Pipeline Register Optimization
-[01:43:51] Phase 3.7 Fast Optimization
-[01:44:22] Phase 4 Post Placement Optimization and Clean-Up
-[01:44:22] Phase 4.1 Post Commit Optimization
-[01:45:24] Phase 4.1.1 Post Placement Optimization
-[01:45:56] Phase 4.1.1.1 BUFG Insertion
-[01:45:56] Phase 1 Physical Synthesis Initialization
-[01:45:56] Phase 4.1.1.2 BUFG Replication
-[01:45:56] Phase 4.1.1.3 Post Placement Timing Optimization
-[01:52:43] Phase 4.1.1.4 Replication
-[01:53:15] Phase 4.2 Post Placement Cleanup
-[01:53:46] Phase 4.3 Placer Reporting
-[01:53:46] Phase 4.3.1 Print Estimated Congestion
-[01:53:46] Phase 4.4 Final Placement Cleanup
+========================================
+Results
+========================================
+
+First block (8 elements):
+  Block exp_shared: 21
+  [0] sign: 0, mant: 25, delta: 3
+  [1] sign: 0, mant: 13, delta: 4
+  [2] sign: 0, mant: 20, delta: 3
+  [3] sign: 0, mant: 13, delta: 4
+  [4] sign: 0, mant: 18, delta: 3
+  [5] sign: 0, mant: 5, delta: 5
+  [6] sign: 0, mant: 22, delta: 3
+  [7] sign: 0, mant: 16, delta: 3
+
+✓ TEST PASSED (data encoded)
+
+Printing profile results: 
+-- setup_time -- (AVG: 0.301667, STD: 0, IT:1)
+-- kernel_execution -- (AVG: 0.000163814, STD: 5.43571e-05, IT:10)
+
+
+========================================
+✓ ENCODE test completed
+
+----------------------------------------
+Test 2: DECODE Operation
+----------------------------------------
+========================================
+BFP Accelerator Test (COMPACT FORMAT)
+========================================
+Operation: DECODE (1)
+Number of blocks: 2
+Block size (N): 16
+BFP Config: WE=5, WM=7
+BFP_BLOCK_SIZE: 49 uints/block
+
+Opening device 0...
+Loading xclbin: ../HW/package.hw/kernels.xclbin...
+Creating kernel handle...
+Allocating buffers in global memory...
+Preparing test data...
+Syncing input buffers to device...
+Executing kernel: DECODE...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: DECODE...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: DECODE...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: DECODE...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: DECODE...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: DECODE...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: DECODE...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: DECODE...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: DECODE...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: DECODE...
+Kernel completed!
+Reading output buffers from device...
+
+========================================
+Results
+========================================
+
+First block (8 elements):
+  [0] FP32: 12.5 (expected: 12.35)
+  [1] FP32: 6.5 (expected: 6.5)
+  [2] FP32: 10 (expected: 10.2)
+  [3] FP32: 6.5 (expected: 6.6)
+  [4] FP32: 9 (expected: 8.8)
+  [5] FP32: 2.5 (expected: 2.56)
+  [6] FP32: 11 (expected: 11.11)
+  [7] FP32: 8 (expected: 8)
+
+========================================
+Accuracy Metrics
+========================================
+MAE:  0.0415624
+MAPE: 3.64652%
+
+✓ TEST PASSED
+
+Printing profile results: 
+-- setup_time -- (AVG: 0.113023, STD: 0, IT:1)
+-- kernel_execution -- (AVG: 0.000153453, STD: 4.77385e-05, IT:10)
+
+
+========================================
+✓ DECODE test completed
+
+----------------------------------------
+Test 3: ADD Operation
+----------------------------------------
+========================================
+BFP Accelerator Test (COMPACT FORMAT)
+========================================
+Operation: ADD (2)
+Number of blocks: 2
+Block size (N): 16
+BFP Config: WE=5, WM=7
+BFP_BLOCK_SIZE: 49 uints/block
+
+Opening device 0...
+Loading xclbin: ../HW/package.hw/kernels.xclbin...
+Creating kernel handle...
+Allocating buffers in global memory...
+Preparing test data...
+Syncing input buffers to device...
+Executing kernel: ADD...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: ADD...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: ADD...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: ADD...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: ADD...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: ADD...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: ADD...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: ADD...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: ADD...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: ADD...
+Kernel completed!
+Reading output buffers from device...
+
+========================================
+Results
+========================================
+
+First block (8 elements):
+  Block exp_shared: 21
+  [0] sign: 0, mant: 29, delta: 3
+  [1] sign: 0, mant: 15, delta: 4
+  [2] sign: 0, mant: 24, delta: 3
+  [3] sign: 0, mant: 19, delta: 3
+  [4] sign: 0, mant: 22, delta: 3
+  [5] sign: 0, mant: 9, delta: 4
+  [6] sign: 0, mant: 26, delta: 3
+  [7] sign: 0, mant: 20, delta: 3
+
+Note: Arithmetic operation completed.
+✓ TEST COMPLETED
+
+Printing profile results: 
+-- setup_time -- (AVG: 0.110513, STD: 0, IT:1)
+-- kernel_execution -- (AVG: 0.000169676, STD: 3.1683e-05, IT:10)
+
+
+========================================
+✓ ADD test completed
+
+----------------------------------------
+Test 4: SUB Operation
+----------------------------------------
+========================================
+BFP Accelerator Test (COMPACT FORMAT)
+========================================
+Operation: SUB (3)
+Number of blocks: 2
+Block size (N): 16
+BFP Config: WE=5, WM=7
+BFP_BLOCK_SIZE: 49 uints/block
+
+Opening device 0...
+Loading xclbin: ../HW/package.hw/kernels.xclbin...
+Creating kernel handle...
+Allocating buffers in global memory...
+Preparing test data...
+Syncing input buffers to device...
+Executing kernel: SUB...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: SUB...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: SUB...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: SUB...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: SUB...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: SUB...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: SUB...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: SUB...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: SUB...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: SUB...
+Kernel completed!
+Reading output buffers from device...
+
+========================================
+Results
+========================================
+
+First block (8 elements):
+  Block exp_shared: 21
+  [0] sign: 0, mant: 21, delta: 3
+  [1] sign: 0, mant: 11, delta: 4
+  [2] sign: 0, mant: 16, delta: 3
+  [3] sign: 0, mant: 7, delta: 5
+  [4] sign: 0, mant: 14, delta: 4
+  [5] sign: 0, mant: 1, delta: 7
+  [6] sign: 0, mant: 18, delta: 3
+  [7] sign: 0, mant: 12, delta: 4
+
+Note: Arithmetic operation completed.
+✓ TEST COMPLETED
+
+Printing profile results: 
+-- setup_time -- (AVG: 0.110979, STD: 0, IT:1)
+-- kernel_execution -- (AVG: 0.000183054, STD: 3.01303e-05, IT:10)
+
+
+========================================
+✓ SUB test completed
+
+----------------------------------------
+Test 5: MUL Operation
+----------------------------------------
+========================================
+BFP Accelerator Test (COMPACT FORMAT)
+========================================
+Operation: MUL (4)
+Number of blocks: 2
+Block size (N): 16
+BFP Config: WE=5, WM=7
+BFP_BLOCK_SIZE: 49 uints/block
+
+Opening device 0...
+Loading xclbin: ../HW/package.hw/kernels.xclbin...
+Creating kernel handle...
+Allocating buffers in global memory...
+Preparing test data...
+Syncing input buffers to device...
+Executing kernel: MUL...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: MUL...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: MUL...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: MUL...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: MUL...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: MUL...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: MUL...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: MUL...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: MUL...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: MUL...
+Kernel completed!
+Reading output buffers from device...
+
+========================================
+Results
+========================================
+
+First block (8 elements):
+  Block exp_shared: 22
+  [0] sign: 0, mant: 25, delta: 3
+  [1] sign: 0, mant: 6, delta: 5
+  [2] sign: 0, mant: 20, delta: 3
+  [3] sign: 0, mant: 20, delta: 3
+  [4] sign: 0, mant: 18, delta: 3
+  [5] sign: 0, mant: 5, delta: 5
+  [6] sign: 0, mant: 22, delta: 3
+  [7] sign: 0, mant: 16, delta: 3
+
+Note: Arithmetic operation completed.
+✓ TEST COMPLETED
+
+Printing profile results: 
+-- setup_time -- (AVG: 0.110686, STD: 0, IT:1)
+-- kernel_execution -- (AVG: 0.000190902, STD: 9.05884e-05, IT:10)
+
+
+========================================
+✓ MUL test completed
+
+----------------------------------------
+Test 6: DIV Operation
+----------------------------------------
+========================================
+BFP Accelerator Test (COMPACT FORMAT)
+========================================
+Operation: DIV (5)
+Number of blocks: 2
+Block size (N): 16
+BFP Config: WE=5, WM=7
+BFP_BLOCK_SIZE: 49 uints/block
+
+Opening device 0...
+Loading xclbin: ../HW/package.hw/kernels.xclbin...
+Creating kernel handle...
+Allocating buffers in global memory...
+Preparing test data...
+Syncing input buffers to device...
+Executing kernel: DIV...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: DIV...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: DIV...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: DIV...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: DIV...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: DIV...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: DIV...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: DIV...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: DIV...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: DIV...
+Kernel completed!
+Reading output buffers from device...
+
+========================================
+Results
+========================================
+
+First block (8 elements):
+  Block exp_shared: 19
+  [0] sign: 0, mant: 50, delta: 2
+  [1] sign: 0, mant: 52, delta: 2
+  [2] sign: 0, mant: 40, delta: 2
+  [3] sign: 0, mant: 17, delta: 3
+  [4] sign: 0, mant: 36, delta: 2
+  [5] sign: 0, mant: 10, delta: 4
+  [6] sign: 0, mant: 44, delta: 2
+  [7] sign: 0, mant: 32, delta: 2
+
+Note: Arithmetic operation completed.
+✓ TEST COMPLETED
+
+Printing profile results: 
+-- setup_time -- (AVG: 0.115811, STD: 0, IT:1)
+-- kernel_execution -- (AVG: 0.000163801, STD: 4.66523e-05, IT:10)
+
+
+========================================
+✓ DIV test completed
+
+----------------------------------------
+Test 7: RCP (Reciprocal) Operation
+----------------------------------------
+========================================
+BFP Accelerator Test (COMPACT FORMAT)
+========================================
+Operation: RCP (6)
+Number of blocks: 2
+Block size (N): 16
+BFP Config: WE=5, WM=7
+BFP_BLOCK_SIZE: 49 uints/block
+
+Opening device 0...
+Loading xclbin: ../HW/package.hw/kernels.xclbin...
+Creating kernel handle...
+Allocating buffers in global memory...
+Preparing test data...
+Syncing input buffers to device...
+Executing kernel: RCP...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: RCP...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: RCP...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: RCP...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: RCP...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: RCP...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: RCP...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: RCP...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: RCP...
+Kernel completed!
+Reading output buffers from device...
+Executing kernel: RCP...
+Kernel completed!
+Reading output buffers from device...
+
+========================================
+Results
+========================================
+
+First block (8 elements):
+  Block exp_shared: 15
+  [0] sign: 0, mant: 64, delta: 1
+  [1] sign: 0, mant: 128, delta: 0
+  [2] sign: 0, mant: 64, delta: 1
+  [3] sign: 0, mant: 42, delta: 2
+  [4] sign: 0, mant: 64, delta: 1
+  [5] sign: 0, mant: 64, delta: 1
+  [6] sign: 0, mant: 64, delta: 1
+  [7] sign: 0, mant: 64, delta: 1
+
+Note: Arithmetic operation completed.
+✓ TEST COMPLETED
+
+Printing profile results: 
+-- setup_time -- (AVG: 0.112159, STD: 0, IT:1)
+-- kernel_execution -- (AVG: 0.000145187, STD: 3.66428e-05, IT:10)
+
+
+========================================
+✓ RCP test completed
+
+========================================
+All tests completed
+========================================
