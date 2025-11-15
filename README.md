@@ -193,5 +193,5 @@ Block Floating-Point (BFP) Unit
 
 Copyright (c) 2025 Steven Arias Gutiérrez
 
-[Insert here the full text of your chosen license, e.g., MIT, BSD-3-Clause, GPL-3.0, etc.]
+[Full text license]
 
