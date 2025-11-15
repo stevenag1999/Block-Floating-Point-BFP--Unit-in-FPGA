@@ -246,6 +246,38 @@ int main(int argc, char** argv) {
         15.0f, 14.0f, 13.0f, 12.0f, 11.0f, 10.0f, 9.0f, 8.0f,
          7.0f,  6.0f,  5.0f,  4.0f,  3.0f,  2.0f, 1.0f, 0.5f
     };
+    float A2[N] = {
+      64.0f, 128.0f, 256.0f, 512.0f, 32.0f, 16.0f, 8.0f, 4.0f,
+      2.0f, 1.0f, 0.5f, 0.25f, 0.125f, 96.0f, 48.0f, 24.0f
+    };
+    float B2[N] = {
+        2.0f, 4.0f, 8.0f, 16.0f, 2.0f, 2.0f, 2.0f, 2.0f,
+        2.0f, 2.0f, 2.0f, 2.0f, 2.0f, 3.0f, 3.0f, 3.0f
+    };
+    float A3[N] = {
+      0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f,
+      0.9f, 1.1f, 1.2f, 1.3f, 1.4f, 1.5f, 1.6f, 1.7f
+    };
+    float B3[N] = {
+        0.5f, 0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 1.0f,
+        2.0f, 2.0f, 2.0f, 2.0f, 3.0f, 3.0f, 3.0f, 3.0f
+    };
+    float A4[N] = {
+      -12.5f, 8.0f, -6.25f, 15.0f, -3.5f, 20.0f, -9.0f, 7.5f,
+      -4.25f, 11.0f, -2.75f, 13.5f, -8.5f, 5.0f, -10.5f, 16.0f
+    };
+    float B4[N] = {
+        2.0f, -2.0f, 2.0f, -2.0f, 2.0f, -2.0f, 2.0f, -2.0f,
+        3.0f, -3.0f, 3.0f, -3.0f, 4.0f, -4.0f, 4.0f, -4.0f
+    };
+    float A5[N] = {
+      100.0f, 99.5f, 98.25f, 97.0f, 95.5f, 94.0f, 92.5f, 91.0f,
+      89.5f, 88.0f, 86.5f, 85.0f, 83.5f, 82.0f, 80.5f, 79.0f
+    };
+    float B5[N] = {
+        10.0f, 9.5f, 9.0f, 8.5f, 8.0f, 7.5f, 7.0f, 6.5f,
+        6.0f, 5.5f, 5.0f, 4.5f, 4.0f, 3.5f, 3.0f, 2.5f
+    };
 
     // Initialize all buffers (UPDATED)
     std::fill(bo_in_fp32_map, bo_in_fp32_map + size_fp32, 0.0f);
@@ -260,15 +292,35 @@ int main(int argc, char** argv) {
     
     // Fill data for all blocks
     for (unsigned int blk = 0; blk < n_blocks; ++blk) {
-        unsigned int offset = blk * N;
-        if (blk % 2 == 0) {
-            std::memcpy(&A_fp[offset], A0, sizeof(float) * N);
-            std::memcpy(&B_fp[offset], B0, sizeof(float) * N);
-        } else {
-            std::memcpy(&A_fp[offset], A1, sizeof(float) * N);
-            std::memcpy(&B_fp[offset], B1, sizeof(float) * N);
-        }
-    }
+    unsigned int offset = blk * N;
+    
+      switch(blk % 6) {  // Ciclo de 6 patrones
+          case 0:
+              std::memcpy(&A_fp[offset], A0, sizeof(float) * N);
+              std::memcpy(&B_fp[offset], B0, sizeof(float) * N);
+              break;
+          case 1:
+              std::memcpy(&A_fp[offset], A1, sizeof(float) * N);
+              std::memcpy(&B_fp[offset], B1, sizeof(float) * N);
+              break;
+          case 2:
+              std::memcpy(&A_fp[offset], A2, sizeof(float) * N);
+              std::memcpy(&B_fp[offset], B2, sizeof(float) * N);
+              break;
+          case 3:
+              std::memcpy(&A_fp[offset], A3, sizeof(float) * N);
+              std::memcpy(&B_fp[offset], B3, sizeof(float) * N);
+              break;
+          case 4:
+              std::memcpy(&A_fp[offset], A4, sizeof(float) * N);
+              std::memcpy(&B_fp[offset], B4, sizeof(float) * N);
+              break;
+          case 5:
+              std::memcpy(&A_fp[offset], A5, sizeof(float) * N);
+              std::memcpy(&B_fp[offset], B5, sizeof(float) * N);
+              break;
+            }
+      }
 
     // Compute golden reference (UNCHANGED)
     for (unsigned int i = 0; i < size_fp32; ++i) {
