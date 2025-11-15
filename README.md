@@ -108,8 +108,6 @@ make
 # Program the FPGA with the generated xclbin/bitstream
 make flash
 
-# Run the test suite (functional + basic accuracy checks)
-make test
 ```
 
 > **Note:** Hardware synthesis and bitstream generation can take several hours depending on your machine.
@@ -124,10 +122,8 @@ Common Makefile targets (names may vary slightly depending on your platform conf
 |---------|-------------|
 | `make` | Build hardware + software |
 | `make hw` | HLS synthesis / implementation of the kernel |
-| `make hw-emu` | (Optional) hardware emulation build |
 | `make sw` | Build host application only |
 | `make flash` | Program the Alveo U55C with the bitstream |
-| `make test` | Run host-side tests against the FPGA |
 | `make clean` | Remove build artifacts |
 
 Check the top-level Makefile and the `HW/` / `SW/` Makefiles if you need to adjust platform names or paths.
