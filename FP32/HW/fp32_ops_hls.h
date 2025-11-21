@@ -81,8 +81,7 @@ DIV_ELEMENTS:
 #pragma HLS LOOP_TRIPCOUNT min=16 max=16 avg=16
         // Handle division by zero gracefully
         if (B[i] == 0.0f) {
-            Z[i] = (A[i] >= 0) ? std::numeric_limits<float>::infinity() 
-                               : -std::numeric_limits<float>::infinity();
+            Z[i] = (A[i] >= 0) ? (1.0f/0.0f) : (-1.0f/0.0f);
         } else {
             Z[i] = A[i] / B[i];
         }
@@ -105,7 +104,7 @@ RCP_ELEMENTS:
 #pragma HLS LOOP_TRIPCOUNT min=16 max=16 avg=16
         // Handle division by zero
         if (B[i] == 0.0f) {
-            Z[i] = std::numeric_limits<float>::infinity();
+            Z[i] = (1.0f/0.0f);
         } else {
             Z[i] = 1.0f / B[i];
         }
